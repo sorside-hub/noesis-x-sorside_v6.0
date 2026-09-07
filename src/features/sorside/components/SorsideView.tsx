@@ -9,6 +9,7 @@ import { ReleaseEditorView } from './ReleaseEditorView';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { ResequenceConfirmModal } from './ResequenceConfirmModal';
 import { AudioPreviewPlayer } from './AudioPreviewPlayer';
+import { AboutGlossaryView } from './AboutGlossaryView';
 import { SorsideSide, SORSIDE_CATEGORIES, SorsideReleaseType, SorsideArticle, SorsideRelease } from '../../../types/sorside';
 import { htmlToArticleText, generateSlug, calculateReadTime, formatReleaseDate, checkReleaseDuplicates } from '../../../lib/sorsideService';
 import { FileNode } from '../../../types/vault';
@@ -23,7 +24,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowDown10,
-  Wand2
+  Wand2,
+  Info
 } from 'lucide-react';
 
 interface SorsideViewProps {
@@ -34,7 +36,7 @@ interface SorsideViewProps {
 }
 
 export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'articles' | 'releases'>('articles');
+  const [activeSubTab, setActiveSubTab] = useState<'articles' | 'releases' | 'about'>('articles');
 
   // Articles Hook
   const {
@@ -289,7 +291,7 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                     <span className="hidden sm:inline">Artikel Baru</span>
                   </button>
                 </>
-              ) : (
+              ) : activeSubTab === 'releases' ? (
                 <button
                   type="button"
                   onClick={handleNewRelease}
@@ -299,7 +301,7 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                   <Plus size={15} />
                   <span className="hidden sm:inline">Rilisan Baru</span>
                 </button>
-              )}
+              ) : null}
 
               <button
                 type="button"
@@ -346,6 +348,19 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                 <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-bg-primary border border-border-default text-text-muted">
                   {allReleasesCount}
                 </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('about')}
+                className={`pb-2.5 text-xs font-semibold flex items-center gap-2 border-b-2 transition-all cursor-pointer shrink-0 ${
+                  activeSubTab === 'about'
+                    ? 'border-accent-primary text-accent-primary'
+                    : 'border-transparent text-text-muted hover:text-text-primary'
+                }`}
+              >
+                <Info size={14} />
+                <span>About</span>
               </button>
             </div>
           </div>
@@ -493,7 +508,7 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : activeSubTab === 'releases' ? (
                 /* RELEASES CMS GRID */
                 <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto">
                   {/* Filter & Search Bar for Releases */}
@@ -628,6 +643,9 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                     </div>
                   )}
                 </div>
+              ) : (
+                /* ABOUT GLOSSARY VIEW */
+                <AboutGlossaryView />
               )}
             </div>
           </div>

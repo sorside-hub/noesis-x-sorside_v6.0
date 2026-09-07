@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { SorsideArticle, SorsideSide, SORSIDE_SIDE_CONFIG, SorsideReleaseType, SorsideRelease } from '../types/sorside';
+import { SorsideArticle, SorsideSide, SORSIDE_SIDE_CONFIG, SorsideReleaseType, SorsideRelease, AboutGlossaryItem } from '../types/sorside';
 
 const INDONESIAN_MONTHS = [
   'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
@@ -1001,6 +1001,127 @@ export const autoResequenceAllReleases = async (
 
   // Return sorted according to discography display order (order_index descending, so newest first)
   return updatedReleases.sort((a, b) => (b.order_index || 0) - (a.order_index || 0));
+};
+
+// ==========================================
+// About Glossary Methods
+// ==========================================
+
+/**
+ * Fetch all glossary items, sorted by order_index
+ */
+export const getAboutGlossaryItems = async (): Promise<AboutGlossaryItem[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('about_glossary')
+      .select('*')
+      .order('order_index', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching about glossary:', error.message);
+      return [];
+    }
+
+    return data as AboutGlossaryItem[];
+  } catch (err) {
+    console.error('Unexpected error in getAboutGlossaryItems:', err);
+    return [];
+  }
+};
+
+/**
+ * Create a new glossary item
+ */
+export const createAboutGlossaryItem = async (
+  itemData: Omit<AboutGlossaryItem, 'id' | 'created_at'>
+): Promise<AboutGlossaryItem | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('about_glossary')
+      .insert([itemData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating glossary item:', error.message);
+      throw new Error(error.message);
+    }
+
+    return data as AboutGlossaryItem;
+  } catch (err) {
+    console.error('Unexpected error in createAboutGlossaryItem:', err);
+    throw err;
+  }
+};
+
+/**
+ * Update an existing glossary item
+ */
+export const updateAboutGlossaryItem = async (
+  id: string,
+  updates: Partial<Omit<AboutGlossaryItem, 'id' | 'created_at'>>
+): Promise<AboutGlossaryItem | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('about_glossary')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating glossary item:', error.message);
+      throw new Error(error.message);
+    }
+
+    return data as AboutGlossaryItem;
+  } catch (err) {
+    console.error('Unexpected error in updateAboutGlossaryItem:', err);
+    throw err;
+  }
+};
+
+/**
+ * Delete a glossary item
+ */
+export const deleteAboutGlossaryItem = async (id: string): Promise<boolean> => {
+  try {
+    const { error } = await supabase.from('about_glossary').delete().eq('id', id);
+
+    if (error) {
+      console.error('Error deleting glossary item:', error.message);
+      throw new Error(error.message);
+    }
+    return true;
+  } catch (err) {
+    console.error('Unexpected error in deleteAboutGlossaryItem:', err);
+    throw err;
+  }
+};
+
+/**
+ * Update the order_index for multiple glossary items at once (for drag and drop)
+ */
+export const reorderAboutGlossaryItems = async (
+  items: { id: string; order_index: number }[]
+): Promise<boolean> => {
+  try {
+    for (const item of items) {
+      const { error } = await supabase
+        .from('about_glossary')
+        .update({ order_index: item.order_index })
+        .eq('id', item.id);
+      
+      if (error) {
+        console.error(`Error updating order for ${item.id}:`, error.message);
+        // We'll continue trying others, or you could throw to rollback if RPC was used
+      }
+    }
+    return true;
+  } catch (err) {
+    console.error('Unexpected error in reorderAboutGlossaryItems:', err);
+    throw err;
+  }
 };
 
 

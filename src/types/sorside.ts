@@ -1,6 +1,15 @@
 export type SorsideCategory = 'stories' | 'thoughts' | 'origins';
 export type SorsideSide = SorsideCategory | 'INNER' | 'HUMAN' | 'PASSION' | 'SORSIDE';
 
+export interface AboutGlossaryItem {
+  id: string;
+  title: string;
+  content: string;
+  order_index: number;
+  published: boolean;
+  created_at?: string;
+}
+
 export interface SideMeta {
   side: SorsideSide;
   side_number: string;

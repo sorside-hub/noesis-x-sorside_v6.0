@@ -13,6 +13,7 @@ import {
 } from '../../../lib/sorsideService';
 import { CreditsBuilder, DEFAULT_SORSIDE_CREDITS_TEMPLATE } from './CreditsBuilder';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { ArticleSlugPickerModal } from './ArticleSlugPickerModal';
 import {
   Save,
   Disc,
@@ -524,6 +525,7 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
   };
 
   const [trackToDelete, setTrackToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [activeSlugPicker, setActiveSlugPicker] = useState<'release' | 'track' | null>(null);
 
   const handleDeleteCurrentTrack = (trackId: string, trackTitle: string) => {
     setTrackToDelete({ id: trackId, title: trackTitle });
@@ -691,24 +693,6 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
             </span>
           </div>
 
-          {/* Center: Interactive Type Release Selector */}
-          <div className="flex items-center bg-bg-primary p-0.5 sm:p-1 rounded-xl border border-border-default shrink-0">
-            {(['SINGLE', 'EP', 'ALBUM'] as const).map((fmt) => (
-              <button
-                key={fmt}
-                type="button"
-                onClick={() => handleTypeChange(fmt)}
-                className={`px-2.5 sm:px-3.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  type === fmt
-                    ? 'bg-bg-surface text-accent-primary font-bold shadow-xs'
-                    : 'text-text-muted hover:text-text-primary'
-                }`}
-              >
-                {fmt}
-              </button>
-            ))}
-          </div>
-
           {/* Right: Read-only Status Dot + Save Button */}
           <div className="flex items-center gap-2 shrink-0">
             <span
@@ -863,16 +847,7 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
           {singleTab === 'lyrics' ? (
             /* TAB 1: LYRICS */
             <div className="flex-1 flex flex-col overflow-hidden p-4 sm:p-8">
-              <div className="max-w-3xl w-full mx-auto h-full flex flex-col space-y-3">
-                <div className="flex items-center justify-between text-xs text-text-muted">
-                  <span className="font-semibold text-text-heading flex items-center gap-1.5">
-                    <FileText size={14} className="text-accent-primary" />
-                    <span>Lirik Lagu "{title || 'Single'}"</span>
-                  </span>
-                  <span className="font-mono text-[11px] bg-bg-surface px-2 py-0.5 rounded border border-border-default">
-                    {lyrics.split('\n').filter(Boolean).length} baris
-                  </span>
-                </div>
+              <div className="max-w-3xl w-full mx-auto h-full flex flex-col">
                 <textarea
                   value={lyrics}
                   onChange={(e) => setLyrics(e.target.value)}
@@ -1139,35 +1114,22 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
                       </label>
 
                       <div className="space-y-1.5">
-                        {/* Dropdown Select from existing articles */}
-                        {articles.length > 0 && (
-                          <select
-                            value={originSlug}
-                            onChange={(e) => setOriginSlug(e.target.value)}
-                            className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none cursor-pointer"
-                          >
-                            <option value="">-- Pilih dari Artikel yang Ada --</option>
-                            {articles.map((art) => {
-                              const artSlug = art.slug || art.id;
-                              return (
-                                <option key={art.id || artSlug} value={artSlug}>
-                                  {art.title} ({artSlug})
-                                </option>
-                              );
-                            })}
-                          </select>
-                        )}
-
-                        {/* Manual / custom slug input */}
-                        <div className="relative">
-                          <input
-                            type="text"
-                            value={originSlug}
-                            onChange={(e) => setOriginSlug(e.target.value)}
-                            placeholder="Atau ketik slug artikel manual: e.g. malam-dan-pertanyaan"
-                            className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none font-mono"
-                          />
-                        </div>
+                        {/* Popup Button for selecting article slug */}
+                        <button
+                          type="button"
+                          onClick={() => setActiveSlugPicker('release')}
+                          className="w-full px-3 py-2 bg-bg-primary border border-border-default hover:border-accent-primary rounded-xl text-xs text-text-primary flex items-center justify-between transition-colors cursor-pointer group"
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <BookOpen size={13} className="text-accent-primary shrink-0" />
+                            <span className="font-mono text-xs font-semibold truncate">
+                              {originSlug ? `📖 ${originSlug}` : '-- Pilih Artikel Origin --'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shrink-0 group-hover:bg-accent-primary group-hover:text-accent-contrast transition-colors">
+                            {originSlug ? 'Ubah Artikel...' : 'Cari Artikel...'}
+                          </span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1680,31 +1642,21 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
                         </label>
 
                         <div className="space-y-1.5">
-                          {articles.length > 0 && (
-                            <select
-                              value={originSlug}
-                              onChange={(e) => setOriginSlug(e.target.value)}
-                              className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none cursor-pointer"
-                            >
-                              <option value="">-- Pilih dari Artikel yang Ada --</option>
-                              {articles.map((art) => {
-                                const artSlug = art.slug || art.id;
-                                return (
-                                  <option key={art.id || artSlug} value={artSlug}>
-                                    {art.title} ({artSlug})
-                                  </option>
-                                );
-                              })}
-                            </select>
-                          )}
-
-                          <input
-                            type="text"
-                            value={originSlug}
-                            onChange={(e) => setOriginSlug(e.target.value)}
-                            placeholder="Atau ketik slug artikel manual: e.g. malam-dan-pertanyaan"
-                            className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none font-mono"
-                          />
+                          <button
+                            type="button"
+                            onClick={() => setActiveSlugPicker('release')}
+                            className="w-full px-3 py-2 bg-bg-primary border border-border-default hover:border-accent-primary rounded-xl text-xs text-text-primary flex items-center justify-between transition-colors cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <BookOpen size={13} className="text-accent-primary shrink-0" />
+                              <span className="font-mono text-xs font-semibold truncate">
+                                {originSlug ? `📖 ${originSlug}` : '-- Pilih Artikel Origin --'}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shrink-0 group-hover:bg-accent-primary group-hover:text-accent-contrast transition-colors">
+                              {originSlug ? 'Ubah Artikel...' : 'Cari Artikel...'}
+                            </span>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1931,15 +1883,7 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
                 {trackTab === 'lyrics' ? (
                   /* Track Lyrics Canvas */
                   <div className="flex-1 overflow-y-auto p-4 sm:p-8">
-                    <div className="max-w-3xl mx-auto h-full flex flex-col space-y-3">
-                      <div className="flex items-center justify-between text-xs text-text-muted">
-                        <span className="font-semibold text-text-heading">
-                          Lirik Track #{selectedTrack.number} — {selectedTrack.title}
-                        </span>
-                        <span className="font-mono text-[11px] bg-bg-surface px-2 py-0.5 rounded border border-border-default">
-                          {(selectedTrack.lyrics || '').split('\n').filter(Boolean).length} baris
-                        </span>
-                      </div>
+                    <div className="max-w-3xl mx-auto h-full flex flex-col">
                       <textarea
                         value={selectedTrack.lyrics || ''}
                         onChange={(e) => handleUpdateCurrentTrack('lyrics', e.target.value)}
@@ -1992,31 +1936,21 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
                           </label>
 
                           <div className="space-y-2">
-                            {articles.length > 0 && (
-                              <select
-                                value={selectedTrack.origin_slug || ''}
-                                onChange={(e) => handleUpdateCurrentTrack('origin_slug', e.target.value)}
-                                className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none cursor-pointer"
-                              >
-                                <option value="">-- Pilih dari Artikel yang Ada --</option>
-                                {articles.map((art) => {
-                                  const artSlug = art.slug || art.id;
-                                  return (
-                                    <option key={art.id || artSlug} value={artSlug}>
-                                      {art.title} ({artSlug})
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                            )}
-
-                            <input
-                              type="text"
-                              value={selectedTrack.origin_slug || ''}
-                              onChange={(e) => handleUpdateCurrentTrack('origin_slug', e.target.value)}
-                              placeholder="Atau ketik slug artikel manual: e.g. malam-dan-pertanyaan"
-                              className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none font-mono"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setActiveSlugPicker('track')}
+                              className="w-full px-3 py-2 bg-bg-primary border border-border-default hover:border-accent-primary rounded-xl text-xs text-text-primary flex items-center justify-between transition-colors cursor-pointer group"
+                            >
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <BookOpen size={13} className="text-accent-primary shrink-0" />
+                                <span className="font-mono text-xs font-semibold truncate">
+                                  {selectedTrack.origin_slug ? `📖 ${selectedTrack.origin_slug}` : '-- Pilih Artikel Origin --'}
+                                </span>
+                              </div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shrink-0 group-hover:bg-accent-primary group-hover:text-accent-contrast transition-colors">
+                                {selectedTrack.origin_slug ? 'Ubah Artikel...' : 'Cari Artikel...'}
+                              </span>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -2084,6 +2018,21 @@ export const ReleaseEditorView: React.FC<ReleaseEditorViewProps> = ({
         itemType="Track Lagu"
         onClose={() => setTrackToDelete(null)}
         onConfirm={handleConfirmDeleteTrack}
+      />
+
+      {/* Article Slug Picker Modal */}
+      <ArticleSlugPickerModal
+        isOpen={Boolean(activeSlugPicker)}
+        onClose={() => setActiveSlugPicker(null)}
+        articles={articles}
+        currentSlug={activeSlugPicker === 'track' ? selectedTrack?.origin_slug || '' : originSlug}
+        onSelectSlug={(slug) => {
+          if (activeSlugPicker === 'track') {
+            handleUpdateCurrentTrack('origin_slug', slug);
+          } else {
+            setOriginSlug(slug);
+          }
+        }}
       />
     </div>
   );

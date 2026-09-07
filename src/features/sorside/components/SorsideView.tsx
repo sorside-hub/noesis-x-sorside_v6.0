@@ -524,7 +524,7 @@ export const SorsideView: React.FC<SorsideViewProps> = ({ vaultState }) => {
                                 : 'text-text-muted hover:text-text-primary border border-transparent'
                             }`}
                           >
-                            {format === 'ALL' ? 'ALL RELEASES' : format}
+                            {format === 'ALL' ? 'ALL' : format}
                           </button>
                         ))}
                       </div>

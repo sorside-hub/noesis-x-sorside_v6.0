@@ -40,18 +40,26 @@ export const useNavigationActions = ({
   // Navigate between top-level views ('vault' <-> 'settings')
   const navigateView = useCallback(
     (newView: ActiveTab) => {
-      // If clicking SORSIDE tab, reset any open editor or sub-page in SORSIDE back to the main dashboard
-      if (newView === 'sorside') {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('reset-sorside-view'));
+      // 1. If clicking the SAME tab that is currently active (e.g., clicking active SORSIDE or MEDIA again):
+      if (newView === view) {
+        // Reset SORSIDE to main list if already on SORSIDE
+        if (newView === 'sorside') {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('reset-sorside-view'));
+          }
         }
-      }
+        // Reset Media Category to main home if already on MEDIA
+        else if (newView === 'media') {
+          setMediaCategory(null);
+        }
 
-      const isMediaCategoryOpen = (view === 'media' || newView === 'media') && mediaCategory !== null;
-      if (newView === view && !isMobileSidebarOpen && !isMobileRightSidebarOpen && !activeModal && !isMediaCategoryOpen) {
+        setIsMobileSidebarOpen(false);
+        setIsMobileRightSidebarOpen(false);
+        setActiveModal(null);
         return;
       }
 
+      // 2. If switching to a DIFFERENT tab (e.g., Vault -> Sorside or Sorside -> Vault -> Sorside):
       if (!isPopStateNavigatingRef.current) {
         currentSeqRef.current += 1;
         const nextEntry: NavigationHistoryEntry = {
@@ -60,14 +68,15 @@ export const useNavigationActions = ({
           isMobileSidebarOpen: false,
           isMobileRightSidebarOpen: false,
           activeModal: null,
-          mediaCategory: null,
+          mediaCategory: newView === 'media' ? mediaCategory : null,
           seq: currentSeqRef.current,
         };
         safePushState(nextEntry);
       }
 
       setView(newView);
-      setMediaCategory(null);
+      // Notice: setMediaCategory is NOT wiped here, and reset-sorside-view is NOT dispatched here.
+      // This preserves exact state/editors when switching back and forth!
       setIsMobileSidebarOpen(false);
       setIsMobileRightSidebarOpen(false);
       setActiveModal(null);

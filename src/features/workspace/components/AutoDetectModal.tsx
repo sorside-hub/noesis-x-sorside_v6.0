@@ -23,6 +23,7 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
   const [noteType, setNoteType] = useState(result.noteType);
   const [tags, setTags] = useState<string[]>(result.tags || []);
   const [aliases, setAliases] = useState<string[]>(result.aliases || []);
+  const [newFolderName, setNewFolderName] = useState(result.folderDecision?.newFolderName || '');
   const [showLog, setShowLog] = useState(false);
 
   const handleConfirm = () => {
@@ -32,6 +33,10 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
       noteType,
       tags,
       aliases,
+      folderDecision: {
+        ...result.folderDecision,
+        newFolderName: newFolderName.trim() || result.folderDecision?.newFolderName || '',
+      },
     });
   };
 
@@ -132,21 +137,38 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
           </div>
 
           {/* 3. Target Folder Decision */}
-          <div className="p-3 bg-bg-primary border border-border-default rounded-xl space-y-1.5">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-text-heading">
-              <Folder size={14} className="text-text-muted shrink-0" />
-              <span>Rekomendasi Folder</span>
+          <div className="p-3 bg-bg-primary border border-border-default rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-text-heading">
+                <Folder size={14} className="text-text-muted shrink-0" />
+                <span>Rekomendasi Folder</span>
+              </div>
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-bg-secondary text-text-muted">
+                {isExistingFolder ? 'Folder Eksisting' : 'Folder Baru'}
+              </span>
             </div>
 
             {isExistingFolder ? (
-              <div className="text-xs text-status-success font-medium flex items-center gap-1">
-                <Check size={12} />
-                <span>Pakai folder eksisting: <strong>{result.folderDecision.existingFolderPath || 'Root Vault'}</strong></span>
+              <div className="text-xs text-status-success font-medium flex items-center gap-1.5 p-2 rounded-lg bg-status-success/5 border border-status-success/20">
+                <Check size={13} className="shrink-0" />
+                <span>Pakai folder: <strong className="font-semibold text-text-primary">{result.folderDecision.existingFolderPath || 'Root Vault'}</strong></span>
               </div>
             ) : (
-              <div className="text-xs text-accent-primary font-medium flex items-center gap-1">
-                <Sparkles size={12} />
-                <span>Buat folder baru: <strong>&quot;{result.folderDecision.newFolderName}&quot;</strong></span>
+              <div className="space-y-1.5 p-2 rounded-lg bg-accent-primary/5 border border-accent-primary/20">
+                <div className="flex items-center justify-between text-xs text-accent-primary font-medium">
+                  <div className="flex items-center gap-1">
+                    <Sparkles size={12} className="shrink-0" />
+                    <span>Buat Subfolder Baru:</span>
+                  </div>
+                  <span className="text-[10px] text-text-muted">Bisa diedit</span>
+                </div>
+                <input
+                  type="text"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="Nama subfolder baru..."
+                  className="w-full px-2.5 py-1.5 bg-bg-surface border border-accent-primary/40 focus:border-accent-primary rounded-lg text-xs font-semibold text-text-primary outline-none transition-colors"
+                />
               </div>
             )}
 

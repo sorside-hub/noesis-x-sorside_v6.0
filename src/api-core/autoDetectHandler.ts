@@ -35,6 +35,142 @@ export interface AutoDetectResult {
  */
 const ALLOWED_ROOT_NAMES = ['01-Pengetahuan', '02-Refleksi', '03-Gagasan'];
 
+const FORBIDDEN_GENERIC_FOLDER_WORDS = new Set([
+  'awal',
+  'akhir',
+  'tentang',
+  'cara',
+  'tips',
+  'bagian',
+  'proses',
+  'langkah',
+  'mulai',
+  'baru',
+  'catatan',
+  'note',
+  'notes',
+  'random',
+  'misc',
+  'lainnya',
+  'draft',
+  'untitled',
+  'umum',
+  'permulaan',
+  'tahap',
+  'hal',
+]);
+
+function toTitleCase(str: string): string {
+  return str
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+export function sanitizeAndElevateFolderName(
+  rawName: string | undefined,
+  parentRootName: string = '',
+  noteType?: string,
+  title?: string,
+  tags?: string[]
+): string {
+  let cleaned = (rawName || '')
+    .replace(/^[0-9]+[\s\-_]*/, '')
+    .replace(/[\/\\]/g, '-')
+    .replace(/[^\w\s\-\&]/g, '')
+    .trim();
+
+  // Bersihkan awalan kata sambung / kata keterangan jika terikut
+  cleaned = cleaned
+    .replace(/^(awal|akhir|tentang|cara|tips|bagian|proses|langkah|tahap)\s+/i, '')
+    .trim();
+
+  const lower = cleaned.toLowerCase();
+  const words = lower.split(/\s+/).filter(Boolean);
+
+  const isForbidden =
+    FORBIDDEN_GENERIC_FOLDER_WORDS.has(lower) ||
+    (words.length === 1 && FORBIDDEN_GENERIC_FOLDER_WORDS.has(words[0])) ||
+    cleaned.length <= 3;
+
+  if (!cleaned || isForbidden) {
+    const textContext = `${title || ''} ${tags?.join(' ') || ''}`.toLowerCase();
+    const type = (noteType || '').toLowerCase();
+
+    if (parentRootName.includes('Refleksi') || parentRootName.startsWith('02')) {
+      if (
+        textContext.includes('perjalanan') ||
+        textContext.includes('sorside') ||
+        textContext.includes('karir') ||
+        textContext.includes('hidup')
+      ) {
+        return 'Perjalanan & Karir';
+      }
+      if (
+        type.includes('jurnal') ||
+        textContext.includes('harian') ||
+        textContext.includes('log')
+      ) {
+        return 'Jurnal Pribadi';
+      }
+      if (
+        type.includes('refleksi') ||
+        textContext.includes('evaluasi') ||
+        textContext.includes('renungan')
+      ) {
+        return 'Refleksi Diri';
+      }
+      return 'Jurnal & Refleksi';
+    } else if (parentRootName.includes('Gagasan') || parentRootName.startsWith('03')) {
+      if (
+        textContext.includes('lagu') ||
+        textContext.includes('musik') ||
+        textContext.includes('audio') ||
+        type.includes('lagu')
+      ) {
+        return 'Ide Lagu & Musik';
+      }
+      if (
+        textContext.includes('fitur') ||
+        textContext.includes('aplikasi') ||
+        textContext.includes('software')
+      ) {
+        return 'Konsep Fitur';
+      }
+      if (textContext.includes('bisnis') || textContext.includes('proyek')) {
+        return 'Eksplorasi Proyek';
+      }
+      return 'Ide & Konsep';
+    } else {
+      // 01-Pengetahuan
+      if (
+        textContext.includes('musik') ||
+        textContext.includes('chord') ||
+        textContext.includes('nada')
+      ) {
+        return 'Teori Musik';
+      }
+      if (
+        textContext.includes('code') ||
+        textContext.includes('program') ||
+        textContext.includes('dev') ||
+        textContext.includes('web')
+      ) {
+        return 'Teknologi & Coding';
+      }
+      if (textContext.includes('buku') || textContext.includes('baca')) {
+        return 'Buku & Literatur';
+      }
+      if (noteType && noteType !== 'None') {
+        return `${toTitleCase(noteType)} & Studi`;
+      }
+      return 'Pengetahuan Umum';
+    }
+  }
+
+  return toTitleCase(cleaned);
+}
+
 export function isAllowedFolderPath(folderPath: string): boolean {
   if (!folderPath) return false;
   return ALLOWED_ROOT_NAMES.some(
@@ -205,7 +341,7 @@ Folder tingkat utama (root) HANYA ADA 3:
    Contoh: Ide lagu/chord orisinal ciptaan sendiri, ide cerita/naskah, ide fitur aplikasi, konsep produk kreatif mentah.
 
 ======================================================================
-ATURAN PENEMPATAN SUBFOLDER (STRICT & ABSOLUTE):
+ATURAN PENETAPAN & PENAMAAN SUBFOLDER (CRITICAL & ABSOLUTE):
 ======================================================================
 1. CATATAN WAJIB DILETAKKAN DI DALAM SUBFOLDER!
    DILARANG KERAS menempatkan catatan langsung di folder root ("01-Pengetahuan", "02-Refleksi", "03-Gagasan"). Folder root murni sebagai wadah pengelompokan tingkat atas, bukan tempat file catatan berserakan.
@@ -216,17 +352,29 @@ ATURAN PENEMPATAN SUBFOLDER (STRICT & ABSOLUTE):
    B. "new": Pilih jika BELUM ADA subfolder yang cocok untuk topik catatan ini.
       AI WAJIB MEMBUAT SUBFOLDER BARU!
       * "newFolderParentId": WAJIB diisi ID dari folder root yang sesuai (ID '01-Pengetahuan', '02-Refleksi', atau '03-Gagasan', atau ID subfolder induk jika bertingkat). DILARANG mengosongkan field ini.
-      * "newFolderName": Nama subfolder baru yang ringkas, bersih, dan representatif (contoh: "Teori Musik", "Buku", "Tutorial", "Jurnal", "Ide Lagu", "Pemrograman", dll. TANPA awalan nomor urut).
+      * "newFolderName": NAMA SUBFOLDER HARUS KATEGORI PAYUNG TEMATIK (Enduring Umbrella Category / Noun Phrase).
+
+======================================================================
+ATURAN EMAS PENAMAAN SUBFOLDER BARU ("newFolderName") [SANGAT PENTING]:
+======================================================================
+Nama subfolder baru HARUS berupa KATEGORI TEMATIK BERKELANJUTAN yang logis untuk menampung puluhan catatan sejenis di masa depan!
+- DILARANG KERAS MEMOTONG SEBUAH KATA TUNGGAL DARI JUDUL!
+  (Contoh KESALAHAN FATAL: Jika judul catatan adalah "Awal Perjalanan Sorside", DILARANG KERAS membuat folder bernama "Awal", "Mulai", atau "Permulaan"!).
+- DILARANG menggunakan kata keterangan/sifat terisolasi seperti: "Awal", "Akhir", "Tentang", "Bagian", "Proses", "Langkah", "Cara", "Tips", "Baru", "Catatan", "Misc".
+- Format nama subfolder: 2-3 kata yang rapi, berbobot, dan mencerminkan taksonomi PKM (Title Case, TANPA nomor urut).
+  * Di bawah "01-Pengetahuan": Bidang studi / domain keahlian (contoh: "Teknologi & Coding", "Teori Musik", "Buku & Literatur", "Sains & Filosofi", "Workflow Produktivitas").
+  * Di bawah "02-Refleksi": Ranah olahan batin / perjalanan hidup (contoh: "Jurnal Pribadi", "Perjalanan & Karir", "Evaluasi Diri", "Refleksi Kehidupan", "Kilas Balik").
+  * Di bawah "03-Gagasan": Wadah konsep kreatif / proyek masa depan (contoh: "Ide Lagu & Musik", "Konsep Fitur", "Eksplorasi Proyek", "Draf Tulisan").
 
 ======================================================================
 ATURAN PRIORITAS PENENTUAN:
 ======================================================================
 1. Pelajari karya orang lain / teori umum → Subfolder di bawah "01-Pengetahuan".
-2. Pengalaman pribadi / jurnal batin → Subfolder di bawah "02-Refleksi".
+2. Pengalaman pribadi / jurnal batin / perjalanan → Subfolder di bawah "02-Refleksi".
 3. Rancangan orisinal ciptaan sendiri yang belum tuntas → Subfolder di bawah "03-Gagasan".
 4. Khusus Musik/Lagu:
-   - Chord & lirik musisi lain (referensi belajar) → Subfolder di bawah "01-Pengetahuan" (misal: "Musik" atau "Lirik & Chord").
-   - Draft ide lirik / progresi chord ciptaan sendiri → Subfolder di bawah "03-Gagasan" (misal: "Ide Lagu" atau "Progresi Chord").
+   - Chord & lirik musisi lain (referensi belajar) → Subfolder di bawah "01-Pengetahuan" (misal: "Teori Musik" atau "Referensi Lagu").
+   - Draft ide lirik / progresi chord ciptaan sendiri → Subfolder di bawah "03-Gagasan" (misal: "Ide Lagu & Musik").
 
 ======================================================================
 ATURAN METADATA LAINNYA:
@@ -331,10 +479,13 @@ Berikan respons HANYA dalam format JSON yang valid sesuai dengan schema.`;
               parsed.folderDecision.reasoning += ` (Dialihkan ke subfolder '${matchedSubfolder.name}' agar catatan tidak ditaruh di root).`;
             } else {
               // Jika belum ada subfolder yang cocok di bawah root ini, wajib buat subfolder baru!
-              const subName =
-                parsed.noteType && parsed.noteType !== 'None'
-                  ? parsed.noteType.charAt(0).toUpperCase() + parsed.noteType.slice(1)
-                  : 'Umum';
+              const subName = sanitizeAndElevateFolderName(
+                parsed.noteType && parsed.noteType !== 'None' ? parsed.noteType : '',
+                selectedFolder.name,
+                parsed.noteType,
+                parsed.suggestedTitle,
+                parsed.tags
+              );
               parsed.folderDecision.action = 'new';
               parsed.folderDecision.newFolderName = subName;
               parsed.folderDecision.newFolderParentId = rootId;
@@ -347,25 +498,12 @@ Berikan respons HANYA dalam format JSON yang valid sesuai dengan schema.`;
             parsed.folderDecision.existingFolderPath = selectedFolder.path;
           }
         } else if (parsed.folderDecision.action === 'new') {
-          // Bersihkan nama folder dari prefix angka atau karakter aneh
-          if (parsed.folderDecision.newFolderName) {
-            parsed.folderDecision.newFolderName = parsed.folderDecision.newFolderName
-              .replace(/^[0-9]+[\s\-_]*/, '')
-              .replace(/[\/\\]/g, '-')
-              .trim();
-          }
-          if (!parsed.folderDecision.newFolderName) {
-            parsed.folderDecision.newFolderName =
-              parsed.noteType && parsed.noteType !== 'None'
-                ? parsed.noteType.charAt(0).toUpperCase() + parsed.noteType.slice(1)
-                : 'Umum';
-          }
+          // Validasi parent root
+          let parentFolder = allowedFolders.find(
+            (f) => f.id === parsed.folderDecision.newFolderParentId
+          );
 
-          // AI DILARANG membuat folder di root! newFolderParentId WAJIB valid
-          if (
-            !parsed.folderDecision.newFolderParentId ||
-            !allowedIdSet.has(parsed.folderDecision.newFolderParentId)
-          ) {
+          if (!parentFolder || !allowedIdSet.has(parentFolder.id)) {
             const fallbackParent = findBestFallbackFolder(
               parsed,
               allowedFolders,
@@ -373,9 +511,20 @@ Berikan respons HANYA dalam format JSON yang valid sesuai dengan schema.`;
               rootRefleksi,
               rootGagasan
             );
-            parsed.folderDecision.newFolderParentId =
-              fallbackParent?.id || rootPengetahuan?.id || null;
+            parentFolder = fallbackParent || rootPengetahuan || undefined;
+            parsed.folderDecision.newFolderParentId = parentFolder?.id || null;
           }
+
+          const parentRootName = parentFolder ? (parentFolder.name || parentFolder.path) : '';
+
+          // Bersihkan dan tingkatkan kualitas nama subfolder secara otomatis
+          parsed.folderDecision.newFolderName = sanitizeAndElevateFolderName(
+            parsed.folderDecision.newFolderName,
+            parentRootName,
+            parsed.noteType,
+            parsed.suggestedTitle,
+            parsed.tags
+          );
         }
       }
 

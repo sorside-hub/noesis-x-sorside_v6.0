@@ -57,12 +57,14 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({
 
   const resolvedCoverUrl = resolveCoverImageUrl(release.cover || release.cover_url || release.cover_art);
 
-  const songCountDisplay =
+  const trackCountDisplay =
     release.type === 'SINGLE'
-      ? '1 SONG'
+      ? '1 track'
       : tracks.length > 0
-      ? `${tracks.length} ${tracks.length === 1 ? 'SONG' : 'SONGS'}`
-      : release.song_count || '0 SONGS';
+      ? `${tracks.length} ${tracks.length === 1 ? 'track' : 'tracks'}`
+      : release.song_count
+      ? release.song_count.toLowerCase().replace('songs', 'tracks').replace('song', 'track')
+      : '0 tracks';
 
   return (
     <div
@@ -113,6 +115,7 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({
 
           {/* Details */}
           <div className="flex-1 min-w-0">
+            {/* Badges: Type, Status, Catalog Number */}
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <span
                 className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border ${typeBadgeColors}`}
@@ -133,13 +136,19 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({
                   {release.catalog_number}
                 </span>
               )}
+            </div>
+
+            {/* Order index & Track count placed below badges */}
+            <div className="flex items-center gap-1.5 text-xs text-text-muted mb-1.5">
               {release.order_index !== undefined && release.order_index !== null && (
-                <span className="text-[10px] font-mono text-text-muted">
-                  #{release.order_index}
-                </span>
+                <>
+                  <span className="font-mono font-semibold text-text-secondary">
+                    #{release.order_index}
+                  </span>
+                  <span>•</span>
+                </>
               )}
-              <span className="text-xs text-text-muted">•</span>
-              <span className="text-xs font-medium text-text-muted">{songCountDisplay}</span>
+              <span className="font-medium text-text-muted">{trackCountDisplay}</span>
             </div>
 
             <h3
@@ -157,20 +166,24 @@ export const ReleaseCard: React.FC<ReleaseCardProps> = ({
                   <span>{release.duration}</span>
                 </span>
               )}
-              {release.origin_slug && (
-                <span className="text-[10px] font-mono text-text-muted truncate max-w-[120px]" title={`Origin: ${release.origin_slug}`}>
-                  📖 {release.origin_slug}
-                </span>
-              )}
             </div>
           </div>
         </div>
 
         {/* Tagline */}
         {release.tagline && (
-          <p className="text-xs text-text-secondary italic line-clamp-2 leading-relaxed mb-4 p-2.5 rounded-xl bg-bg-primary border border-border-subtle">
+          <p className="text-xs text-text-secondary italic line-clamp-2 leading-relaxed mb-2 p-2.5 rounded-xl bg-bg-primary border border-border-subtle">
             "{release.tagline}"
           </p>
+        )}
+
+        {/* Origin Info (placed below tagline) */}
+        {release.origin_slug && (
+          <div className="flex items-center gap-1.5 text-[11px] text-text-muted mb-3.5">
+            <span className="font-mono text-[10px] px-2 py-0.5 rounded-md bg-bg-primary border border-border-subtle text-text-muted truncate max-w-full" title={`Origin: ${release.origin_slug}`}>
+              📖 {release.origin_slug}
+            </span>
+          </div>
         )}
 
         {/* Streaming links pills (Spotify, YouTube, Apple Music) */}

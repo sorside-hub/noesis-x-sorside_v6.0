@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SorsideTrack, SorsideArticle } from '../../../types/sorside';
 import { X, Save, Music, FileText, Loader2, SlidersHorizontal, Video, BookOpen } from 'lucide-react';
+import { ArticleSlugPickerModal } from './ArticleSlugPickerModal';
 
 interface TrackEditorModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const TrackEditorModal: React.FC<TrackEditorModalProps> = ({
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [originSlug, setOriginSlug] = useState('');
   const [lyrics, setLyrics] = useState('');
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -259,31 +261,21 @@ export const TrackEditorModal: React.FC<TrackEditorModalProps> = ({
                 </label>
 
                 <div className="space-y-2">
-                  {articles.length > 0 && (
-                    <select
-                      value={originSlug}
-                      onChange={(e) => setOriginSlug(e.target.value)}
-                      className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none cursor-pointer"
-                    >
-                      <option value="">-- Pilih dari Artikel yang Ada --</option>
-                      {articles.map((art) => {
-                        const artSlug = art.slug || art.id;
-                        return (
-                          <option key={art.id || artSlug} value={artSlug}>
-                            {art.title} ({artSlug})
-                          </option>
-                        );
-                      })}
-                    </select>
-                  )}
-
-                  <input
-                    type="text"
-                    placeholder="Atau ketik slug artikel manual: e.g. malam-dan-pertanyaan"
-                    value={originSlug}
-                    onChange={(e) => setOriginSlug(e.target.value)}
-                    className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none font-mono"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsPickerOpen(true)}
+                    className="w-full px-3 py-2 bg-bg-primary border border-border-default hover:border-accent-primary rounded-xl text-xs text-text-primary flex items-center justify-between transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <BookOpen size={13} className="text-accent-primary shrink-0" />
+                      <span className="font-mono text-xs font-semibold truncate">
+                        {originSlug ? `📖 ${originSlug}` : '-- Pilih Artikel Origin --'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shrink-0 group-hover:bg-accent-primary group-hover:text-accent-contrast transition-colors">
+                      {originSlug ? 'Ubah Artikel...' : 'Cari Artikel...'}
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -319,6 +311,14 @@ export const TrackEditorModal: React.FC<TrackEditorModalProps> = ({
           </div>
         </form>
       </div>
+
+      <ArticleSlugPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        articles={articles}
+        currentSlug={originSlug}
+        onSelectSlug={(slug) => setOriginSlug(slug)}
+      />
     </div>
   );
 };

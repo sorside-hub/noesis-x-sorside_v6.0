@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    <title>Noesis — AI Second Brain & PKM Vault</title>
+    <meta name="description" content="Offline-first Personal Knowledge Management & Second Brain powered by local AI." />
+    
+    <!-- PWA Primary & Theme Colors -->
+    <meta name="theme-color" content="#050505" />
+    <meta name="background-color" content="#050505" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Noesis" />
+    <meta name="application-name" content="Noesis" />
+
+    <!-- Icons & Manifest -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="alternate icon" type="image/png" href="/pwa-maskable-192x192.png" />
+    <link rel="apple-touch-icon" href="/pwa-maskable-512x512.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Noesis — AI Second Brain" />
+    <meta property="og:description" content="Offline-first Personal Knowledge Management & Second Brain powered by local AI." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Prevent Theme Flash (FOUC) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('noesis_theme_mode');
+          if (saved === 'editorial-light') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            document.documentElement.setAttribute('data-theme', 'editorial-light');
+          } else if (saved === 'sophisticated-dark') {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', 'sophisticated-dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-bg-canvas text-text-primary antialiased select-none overflow-hidden touch-manipulation">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('Noesis PWA ServiceWorker active:', reg.scope))
+            .catch((err) => console.log('ServiceWorker registration failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
+

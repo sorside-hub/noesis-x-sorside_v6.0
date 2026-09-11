@@ -16,7 +16,7 @@ interface UseLeftSidebarLogicProps {
   onSelectFile: (id: string) => void;
   onOpenInNewTab: (id: string) => void;
   onCreateNote: (parentId?: string | null) => void;
-  onCreateFolder: (parentId?: string | null) => void;
+  onCreateFolder: (parentId?: string | null, name?: string) => void;
   onRenameNode: (id: string, newName: string) => void;
   onMoveNode: (id: string, targetParentId: string | null) => void;
   onDeleteNode: (id: string) => void;
@@ -99,7 +99,7 @@ export function useLeftSidebarLogic({
     }
   };
 
-  const isPillHidden = isKeyboardOpen || !!nodeActions.renamingNode || !!nodeActions.movingNode || !!treeDnd.activeDragNode;
+  const isPillHidden = isKeyboardOpen || !!nodeActions.renamingNode || !!nodeActions.movingNode || !!nodeActions.creatingFolderTarget || !!treeDnd.activeDragNode;
 
   return {
     activeTab,

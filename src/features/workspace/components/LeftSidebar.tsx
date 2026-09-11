@@ -9,6 +9,7 @@ import { LeftSidebarContextMenu } from './LeftSidebarContextMenu';
 import { DeleteNodeModal } from './DeleteNodeModal';
 import { MoveNodeModal } from './MoveNodeModal';
 import { RenameNodeModal } from './RenameNodeModal';
+import { CreateFolderModal } from './CreateFolderModal';
 import { FileTree } from './FileTree';
 import { TagExplorer } from './TagExplorer';
 import { BookmarksExplorer } from './BookmarksExplorer';
@@ -23,7 +24,7 @@ interface LeftSidebarProps {
   onSelectFile: (id: string) => void;
   onOpenInNewTab: (id: string) => void;
   onCreateNote: (parentId?: string | null) => void;
-  onCreateFolder: (parentId?: string | null) => void;
+  onCreateFolder: (parentId?: string | null, name?: string) => void;
   onRenameNode: (id: string, newName: string) => void;
   onMoveNode: (id: string, targetParentId: string | null) => void;
   onDeleteNode: (id: string) => void;
@@ -69,6 +70,14 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     setFolderSearchQuery,
     folderSearchInputRef,
     nodeToDelete,
+    creatingFolderTarget,
+    creatingFolderParentName,
+    newFolderName,
+    setNewFolderName,
+    createFolderInputRef,
+    isNewFolderDuplicate,
+    handleStartCreateFolder,
+    handleExecuteCreateFolder,
     isInputFocused,
     setIsInputFocused,
     areAllFoldersExpanded: _areAllFoldersExpanded,
@@ -312,7 +321,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         activeTab={activeTab}
         isPillHidden={isPillHidden}
         onCreateNote={onCreateNote}
-        onCreateFolder={onCreateFolder}
+        onCreateFolder={() => handleStartCreateFolder(null)}
         onCreateBookmarkGroup={() => {
           setIsCreatingBookmarkGroup(true);
         }}
@@ -360,6 +369,22 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         onRemoveBookmark={bookmarksData.removeBookmark}
         onCreateGroup={bookmarksData.createGroup}
       />
+
+      {/* ----------------------------------------------------------- */}
+      {/* CREATE FOLDER MODAL */}
+      {/* ----------------------------------------------------------- */}
+      {creatingFolderTarget && (
+        <CreateFolderModal
+          parentFolderName={creatingFolderParentName}
+          folderName={newFolderName}
+          setFolderName={setNewFolderName}
+          inputRef={createFolderInputRef}
+          isDuplicate={isNewFolderDuplicate}
+          setIsInputFocused={setIsInputFocused}
+          closeActiveDialog={closeActiveDialog}
+          handleCreateFolder={handleExecuteCreateFolder}
+        />
+      )}
 
       {/* ----------------------------------------------------------- */}
       {/* RENAME NODE MODAL */}

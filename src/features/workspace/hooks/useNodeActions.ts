@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VaultData, FileNode } from '../../../types/vault';
-import { isNodeNameDuplicate } from '../../../lib/vaultUtils';
+import { isNodeNameDuplicate, getUniqueNodeName } from '../../../lib/vaultUtils';
 import { useNavigation } from '../../../context/NavigationContext';
 
 interface UseNodeActionsOptions {
   vault: VaultData;
   setExpandedFolders: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
   onCreateNote: (parentId?: string | null) => void;
-  onCreateFolder: (parentId?: string | null) => void;
+  onCreateFolder: (parentId?: string | null, name?: string) => void;
   onRenameNode: (id: string, newName: string) => void;
   onMoveNode: (id: string, targetParentId: string | null) => void;
   onDeleteNode: (id: string) => void;
@@ -32,6 +32,11 @@ export function useNodeActions({
   const [renamingNode, setRenamingNode] = useState<FileNode | null>(null);
   const [renameValue, setRenameValue] = useState<string>('');
   const renameInputRef = useRef<HTMLInputElement>(null);
+
+  // Create Folder Modal State
+  const [creatingFolderTarget, setCreatingFolderTarget] = useState<{ parentId: string | null } | null>(null);
+  const [newFolderName, setNewFolderName] = useState<string>('');
+  const createFolderInputRef = useRef<HTMLInputElement>(null);
 
   // Move Modal State & Search Query
   const [movingNode, setMovingNode] = useState<FileNode | null>(null);
@@ -58,6 +63,7 @@ export function useNodeActions({
       setRenamingNode(null);
       setMovingNode(null);
       setNodeToDelete(null);
+      setCreatingFolderTarget(null);
     }
   }, [activeModal]);
 
@@ -68,6 +74,14 @@ export function useNodeActions({
       renameInputRef.current.select();
     }
   }, [renamingNode]);
+
+  // Focus and select create folder input when modal opens
+  useEffect(() => {
+    if (creatingFolderTarget && createFolderInputRef.current) {
+      createFolderInputRef.current.focus();
+      createFolderInputRef.current.select();
+    }
+  }, [creatingFolderTarget]);
 
   // Focus search input and reset query when move modal opens
   useEffect(() => {
@@ -111,6 +125,8 @@ export function useNodeActions({
     setRenamingNode(null);
     setMovingNode(null);
     setNodeToDelete(null);
+    setCreatingFolderTarget(null);
+    setNewFolderName('');
     setIsInputFocused(false);
     closeModal();
   };
@@ -132,6 +148,41 @@ export function useNodeActions({
       closeActiveDialog();
     }
   };
+
+  const handleStartCreateFolder = (parentId: string | null = null) => {
+    setActiveMenuNode(null);
+    if (parentId) {
+      setExpandedFolders((prev) => ({
+        ...prev,
+        [parentId]: true,
+      }));
+    }
+    const defaultName = getUniqueNodeName('New Folder', parentId, 'folder', vault.nodes);
+    setNewFolderName(defaultName);
+    setCreatingFolderTarget({ parentId });
+    openModal('create-folder');
+  };
+
+  const isNewFolderDuplicate = creatingFolderTarget
+    ? isNodeNameDuplicate(newFolderName, creatingFolderTarget.parentId, 'folder', vault.nodes)
+    : false;
+
+  const handleExecuteCreateFolder = () => {
+    if (creatingFolderTarget && newFolderName.trim() && !isNewFolderDuplicate) {
+      onCreateFolder(creatingFolderTarget.parentId, newFolderName.trim());
+      if (creatingFolderTarget.parentId) {
+        setExpandedFolders((prev) => ({
+          ...prev,
+          [creatingFolderTarget.parentId!]: true,
+        }));
+      }
+      closeActiveDialog();
+    }
+  };
+
+  const creatingFolderParentName = creatingFolderTarget?.parentId
+    ? vault.nodes[creatingFolderTarget.parentId]?.name || null
+    : null;
 
   const handleStartMove = (node: FileNode) => {
     setActiveMenuNode(null);
@@ -169,12 +220,7 @@ export function useNodeActions({
   };
 
   const handleCreateSubfolderInFolder = (node: FileNode) => {
-    setExpandedFolders((prev) => ({
-      ...prev,
-      [node.id]: true,
-    }));
-    closeActiveDialog();
-    onCreateFolder(node.id);
+    handleStartCreateFolder(node.id);
   };
 
   const getFolderPath = (folderId: string): string => {
@@ -254,6 +300,14 @@ export function useNodeActions({
     handleExecuteMove,
     handleDelete,
     confirmDelete,
+    creatingFolderTarget,
+    creatingFolderParentName,
+    newFolderName,
+    setNewFolderName,
+    createFolderInputRef,
+    isNewFolderDuplicate,
+    handleStartCreateFolder,
+    handleExecuteCreateFolder,
     handleCreateNoteInFolder,
     handleCreateSubfolderInFolder,
     getAvailableFolders,

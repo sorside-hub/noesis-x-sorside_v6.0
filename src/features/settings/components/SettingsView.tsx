@@ -12,7 +12,8 @@ import {
   Palette,
   Moon,
   Sun,
-  Check
+  Check,
+  Contrast
 } from 'lucide-react';
 import { VaultData, FileNode } from '../../../types/vault';
 import { ApiKeyStatusSection } from './ApiKeyStatusSection';
@@ -98,7 +99,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
             Tema & Tampilan
           </h2>
           
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Sophisticated Dark Option */}
             <button
               type="button"
@@ -119,6 +120,32 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
                 </div>
               </div>
               {theme === 'sophisticated-dark' && (
+                <div className="w-5 h-5 rounded-full bg-accent-primary text-accent-contrast flex items-center justify-center shrink-0">
+                  <Check size={12} strokeWidth={2.5} />
+                </div>
+              )}
+            </button>
+
+            {/* Soft Monochrome Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('soft-monochrome')}
+              className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
+                theme === 'soft-monochrome'
+                  ? 'bg-bg-surface border-accent-primary ring-1 ring-accent-primary shadow-xs'
+                  : 'bg-bg-surface border-border-default hover:border-accent-primary/40 hover:bg-bg-hover'
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="p-2 rounded-lg bg-[#1a1b1e] text-[#e4e4e7] border border-[#2b2d33] shadow-xs shrink-0">
+                  <Contrast size={16} className="text-[#e4e4e7]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-sm font-semibold text-text-heading block truncate">Monochrome</span>
+                  <span className="text-[11px] text-text-muted block truncate">Soft Slate</span>
+                </div>
+              </div>
+              {theme === 'soft-monochrome' && (
                 <div className="w-5 h-5 rounded-full bg-accent-primary text-accent-contrast flex items-center justify-center shrink-0">
                   <Check size={12} strokeWidth={2.5} />
                 </div>

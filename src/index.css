@@ -192,6 +192,52 @@
     --status-info-bg: rgba(43, 108, 176, 0.12);
     --status-info-border: rgba(43, 108, 176, 0.28);
   }
+
+  [data-theme="soft-monochrome"] {
+    /* Backgrounds - Slate Charcoal yang lembut */
+    --bg-primary: #121316;
+    --bg-surface: #1a1b1e;
+    --bg-hover: #24262b;
+    --bg-elevated: #2b2d33;
+
+    /* Borders - Subtle monochrome */
+    --border-default: rgba(255, 255, 255, 0.12);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+
+    /* Typography - Off-white anti silau */
+    --text-heading: #f4f4f5;
+    --text-primary: #d4d4d8;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --text-disabled: #52525b;
+    --text-bold: #ffffff;
+    --text-inverse: #121316;
+    --text-link: #e4e4e7;
+    --text-code: #e4e4e7;
+    --text-quote: #a1a1aa;
+
+    /* Accents - Soft Neutral / Silver */
+    --accent-primary: #e4e4e7;
+    --accent-soft: rgba(255, 255, 255, 0.08);
+    --accent-contrast: #121316;
+
+    /* Status - Muted Tones */
+    --status-success: #4ade80;
+    --status-success-bg: rgba(74, 222, 128, 0.10);
+    --status-success-border: rgba(74, 222, 128, 0.25);
+
+    --status-warning: #fbbf24;
+    --status-warning-bg: rgba(251, 191, 36, 0.10);
+    --status-warning-border: rgba(251, 191, 36, 0.25);
+
+    --status-error: #f87171;
+    --status-error-bg: rgba(248, 113, 113, 0.10);
+    --status-error-border: rgba(248, 113, 113, 0.25);
+
+    --status-info: #60a5fa;
+    --status-info-bg: rgba(96, 165, 250, 0.10);
+    --status-info-border: rgba(96, 165, 250, 0.25);
+  }
 }
 
 body {

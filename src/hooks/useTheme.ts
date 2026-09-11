@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/db';
 
-export type ThemeMode = 'sophisticated-dark' | 'editorial-light' | 'warm-parchment';
+export type ThemeMode = 'sophisticated-dark' | 'editorial-light' | 'warm-parchment' | 'soft-monochrome';
 const STORAGE_KEY_THEME = 'noesis_theme_mode';
 
 export const useTheme = () => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_THEME);
-      if (saved === 'editorial-light' || saved === 'sophisticated-dark' || saved === 'warm-parchment') {
+      if (saved === 'editorial-light' || saved === 'sophisticated-dark' || saved === 'warm-parchment' || saved === 'soft-monochrome') {
         return saved as ThemeMode;
       }
     } catch (e) {}
@@ -18,7 +18,7 @@ export const useTheme = () => {
   // Sync with Dexie on mount
   useEffect(() => {
     db.settings.get(STORAGE_KEY_THEME).then((setting) => {
-      if (setting && (setting.value === 'sophisticated-dark' || setting.value === 'editorial-light' || setting.value === 'warm-parchment')) {
+      if (setting && (setting.value === 'sophisticated-dark' || setting.value === 'editorial-light' || setting.value === 'warm-parchment' || setting.value === 'soft-monochrome')) {
         setThemeState(setting.value as ThemeMode);
         try {
           localStorage.setItem(STORAGE_KEY_THEME, setting.value);
@@ -45,6 +45,9 @@ export const useTheme = () => {
     } else if (theme === 'warm-parchment') {
       root.classList.add('light');
       root.setAttribute('data-theme', 'warm-parchment');
+    } else if (theme === 'soft-monochrome') {
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'soft-monochrome');
     } else {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'sophisticated-dark');

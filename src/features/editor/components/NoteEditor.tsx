@@ -24,6 +24,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ vaultState: externalVaul
     openInNewTab,
     closeTab,
     createNote,
+    duplicateNote,
     createFolder,
     updateNoteContent,
     updateNodeTitle,
@@ -147,6 +148,13 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ vaultState: externalVaul
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleLeftHeaderToggle]);
 
+  const handleDuplicateNote = (id: string) => {
+    const newId = duplicateNote(id);
+    if (newId) {
+      handleSelectFile(newId);
+    }
+  };
+
   return (
     <div
       onTouchStart={handleTouchStart}
@@ -164,6 +172,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ vaultState: externalVaul
         openInNewTab={openInNewTab}
         onCreateNote={handleCreateNewNote}
         createFolder={createFolder}
+        onDuplicateNote={handleDuplicateNote}
         updateNodeTitle={updateNodeTitle}
         moveNode={moveNode}
         deleteNode={deleteNode}
@@ -189,6 +198,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ vaultState: externalVaul
         openInNewTab={openInNewTab}
         onCreateNote={handleCreateNewNote}
         createFolder={createFolder}
+        onDuplicateNote={handleDuplicateNote}
         updateNodeTitle={updateNodeTitle}
         moveNode={moveNode}
         deleteNode={deleteNode}

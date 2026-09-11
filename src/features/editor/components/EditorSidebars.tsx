@@ -22,6 +22,7 @@ interface EditorSidebarsProps {
   openInNewTab: (id: string) => void;
   onCreateNote: (parentId?: string | null) => void;
   createFolder: (parentId?: string | null, name?: string) => string;
+  onDuplicateNote?: (id: string) => void;
   updateNodeTitle: (id: string, name: string) => void;
   moveNode: (id: string, parentId: string | null) => void;
   deleteNode: (id: string) => void;
@@ -38,6 +39,7 @@ export const DesktopLeftSidebar: React.FC<{
   openInNewTab: (id: string) => void;
   onCreateNote: (parentId?: string | null) => void;
   createFolder: (parentId?: string | null, name?: string) => string;
+  onDuplicateNote?: (id: string) => void;
   updateNodeTitle: (id: string, name: string) => void;
   moveNode: (id: string, parentId: string | null) => void;
   deleteNode: (id: string) => void;
@@ -49,6 +51,7 @@ export const DesktopLeftSidebar: React.FC<{
   openInNewTab,
   onCreateNote,
   createFolder,
+  onDuplicateNote,
   updateNodeTitle,
   moveNode,
   deleteNode,
@@ -67,6 +70,7 @@ export const DesktopLeftSidebar: React.FC<{
         onOpenInNewTab={openInNewTab}
         onCreateNote={onCreateNote}
         onCreateFolder={createFolder}
+        onDuplicateNote={onDuplicateNote}
         onRenameNode={updateNodeTitle}
         onMoveNode={moveNode}
         onDeleteNode={deleteNode}
@@ -141,6 +145,7 @@ export const MobileDrawers: React.FC<EditorSidebarsProps> = ({
   openInNewTab,
   onCreateNote,
   createFolder,
+  onDuplicateNote,
   updateNodeTitle,
   moveNode,
   deleteNode,
@@ -164,6 +169,7 @@ export const MobileDrawers: React.FC<EditorSidebarsProps> = ({
           onOpenInNewTab={openInNewTab}
           onCreateNote={onCreateNote}
           onCreateFolder={createFolder}
+          onDuplicateNote={onDuplicateNote}
           onRenameNode={updateNodeTitle}
           onMoveNode={moveNode}
           onDeleteNode={deleteNode}

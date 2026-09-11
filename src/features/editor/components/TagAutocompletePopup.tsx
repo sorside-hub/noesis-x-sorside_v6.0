@@ -72,11 +72,11 @@ export const TagAutocompletePopup: React.FC<TagAutocompletePopupProps> = ({
         e.preventDefault();
         e.stopPropagation();
         if (showCreateOption && selectedIndex === matchingTags.length) {
-          onSelect(q);
+          onSelect(q.toLowerCase());
         } else if (matchingTags[selectedIndex]) {
-          onSelect(matchingTags[selectedIndex]);
+          onSelect(matchingTags[selectedIndex].toLowerCase());
         } else if (q) {
-          onSelect(q);
+          onSelect(q.toLowerCase());
         }
       } else if (e.key === 'Escape') {
         e.preventDefault();
@@ -129,7 +129,7 @@ export const TagAutocompletePopup: React.FC<TagAutocompletePopupProps> = ({
             <button
               key={tag}
               type="button"
-              onClick={() => onSelect(tag)}
+              onClick={() => onSelect(tag.toLowerCase())}
               className={`w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 text-xs transition-colors ${
                 isSelected
                   ? 'bg-accent-primary/15 text-accent-primary font-medium'

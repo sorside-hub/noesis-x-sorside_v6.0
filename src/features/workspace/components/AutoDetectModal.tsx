@@ -21,7 +21,9 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
 
   const [title, setTitle] = useState(result.suggestedTitle);
   const [noteType, setNoteType] = useState(result.noteType);
-  const [tags, setTags] = useState<string[]>(result.tags || []);
+  const [tags, setTags] = useState<string[]>(
+    (result.tags || []).map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)
+  );
   const [aliases, setAliases] = useState<string[]>(result.aliases || []);
   const [newFolderName, setNewFolderName] = useState(result.folderDecision?.newFolderName || '');
   const [showLog, setShowLog] = useState(false);
@@ -31,7 +33,7 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
       ...result,
       suggestedTitle: title,
       noteType,
-      tags,
+      tags: tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean),
       aliases,
       folderDecision: {
         ...result.folderDecision,

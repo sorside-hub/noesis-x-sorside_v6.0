@@ -110,7 +110,7 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
 
     const parsedTags = tagsInput
       .split(',')
-      .map((t) => t.trim().replace(/^#/, ''))
+      .map((t) => t.trim().replace(/^#/, '').toLowerCase())
       .filter(Boolean);
 
     try {
@@ -344,7 +344,10 @@ export const ArticleEditorModal: React.FC<ArticleEditorModalProps> = ({
                     type="text"
                     placeholder="pikiran, malam, resah"
                     value={tagsInput}
-                    onChange={(e) => setTagsInput(e.target.value)}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    onChange={(e) => setTagsInput(e.target.value.toLowerCase())}
                     className="w-full px-3 py-2 bg-bg-primary border border-border-default focus:border-accent-primary rounded-xl text-xs text-text-primary outline-none"
                   />
                   <p className="text-[10px] text-text-muted">Contoh: refleksi, analog, kopi</p>

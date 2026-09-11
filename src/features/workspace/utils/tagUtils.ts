@@ -34,7 +34,7 @@ export function extractNodeTags(node: FileNode): string[] {
   if (Array.isArray(node.metadata?.tags)) {
     node.metadata.tags.forEach((t) => {
       if (typeof t === 'string') {
-        const clean = t.trim().replace(/^#/, '');
+        const clean = t.trim().replace(/^#/, '').toLowerCase();
         if (clean) tagsSet.add(clean);
       }
     });
@@ -45,7 +45,7 @@ export function extractNodeTags(node: FileNode): string[] {
     const re = /(?:^|[^\p{L}\p{N}#_])(#[\p{L}\p{N}_\-\/]+)/gu;
     let match;
     while ((match = re.exec(node.content)) !== null) {
-      let clean = match[1].replace(/^#/, '').trim();
+      let clean = match[1].replace(/^#/, '').trim().toLowerCase();
       clean = clean.replace(/[\/.]+$/, '');
       if (clean) tagsSet.add(clean);
     }

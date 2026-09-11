@@ -99,9 +99,13 @@ export function useAutoDetect({
     }
 
     // 2. Update Metadata
+    const cleanTags = Array.isArray(result.tags)
+      ? Array.from(new Set(result.tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)))
+      : [];
+
     onUpdateMetadata(activeNode.id, {
       noteType: result.noteType,
-      tags: result.tags,
+      tags: cleanTags,
       aliases: result.aliases,
     });
 

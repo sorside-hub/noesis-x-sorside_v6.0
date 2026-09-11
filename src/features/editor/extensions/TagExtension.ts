@@ -55,6 +55,7 @@ export const TagExtension = Extension.create<TagOptions>({
 
                   const rawTagName = tagWithHash.slice(1);
                   if (!rawTagName) continue;
+                  const cleanTag = rawTagName.toLowerCase();
 
                   const isCursorInside = selection.from >= start && selection.to <= end;
 
@@ -62,15 +63,15 @@ export const TagExtension = Extension.create<TagOptions>({
                     decorations.push(
                       Decoration.inline(start, end, {
                         class: 'inline-tag-editing font-medium',
-                        'data-tag': rawTagName,
+                        'data-tag': cleanTag,
                       })
                     );
                   } else {
                     decorations.push(
                       Decoration.inline(start, end, {
                         class: 'inline-tag select-text',
-                        'data-tag': rawTagName,
-                        title: `Tag: #${rawTagName} • Ctrl + Klik untuk buka di sidebar`,
+                        'data-tag': cleanTag,
+                        title: `Tag: #${cleanTag} • Ctrl + Klik untuk buka di sidebar`,
                       })
                     );
                   }

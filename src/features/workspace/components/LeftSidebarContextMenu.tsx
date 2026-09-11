@@ -5,6 +5,7 @@ import {
   Plus, 
   FolderPlus, 
   ExternalLink, 
+  Copy,
   Edit2, 
   FolderInput, 
   Trash2,
@@ -24,6 +25,7 @@ interface LeftSidebarContextMenuProps {
   handleCreateSubfolderInFolder: (node: FileNode) => void;
   onOpenInNewTab: (id: string) => void;
   onCloseMobile: () => void;
+  onDuplicateNote?: (node: FileNode) => void;
   handleStartRename: (node: FileNode) => void;
   handleStartMove: (node: FileNode) => void;
   handleExportNote?: (node: FileNode) => void;
@@ -40,6 +42,7 @@ export const LeftSidebarContextMenu: React.FC<LeftSidebarContextMenuProps> = ({
   handleCreateSubfolderInFolder,
   onOpenInNewTab,
   onCloseMobile,
+  onDuplicateNote,
   handleStartRename,
   handleStartMove,
   handleExportNote,
@@ -153,6 +156,21 @@ export const LeftSidebarContextMenu: React.FC<LeftSidebarContextMenuProps> = ({
               <ExternalLink size={13} className="text-text-muted shrink-0" />
               <span>Buka di Tab Baru</span>
             </button>
+
+            {onDuplicateNote && (
+              <button
+                type="button"
+                onClick={() => {
+                  const node = activeMenuNode;
+                  closeActiveDialog();
+                  onDuplicateNote(node);
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 text-text-primary hover:bg-bg-hover transition-colors text-left cursor-pointer"
+              >
+                <Copy size={13} className="text-text-muted shrink-0" />
+                <span>Buat Salinan</span>
+              </button>
+            )}
 
             {handleExportNote && (
               <button

@@ -67,7 +67,14 @@ export function useNoteProperties({
 
   const handleTagsChange = (newTags: string[]) => {
     if (!activeNode) return;
-    onUpdateMetadata(activeNode.id, { tags: newTags });
+    const cleanTags = Array.from(
+      new Set(
+        newTags
+          .map((t) => t.trim().replace(/^#/, '').toLowerCase())
+          .filter(Boolean)
+      )
+    );
+    onUpdateMetadata(activeNode.id, { tags: cleanTags });
   };
 
   const handleAliasesChange = (newAliases: string[]) => {
@@ -87,7 +94,11 @@ export function useNoteProperties({
     Object.values(vault.nodes).forEach((n) => {
       if (n.type === 'file' && n.metadata) {
         if (Array.isArray(n.metadata.tags)) {
-          n.metadata.tags.forEach((t) => allTags.add(t));
+          n.metadata.tags.forEach((t) => {
+            if (typeof t === 'string' && t.trim()) {
+              allTags.add(t.trim().replace(/^#/, '').toLowerCase());
+            }
+          });
         }
         if (typeof n.metadata.noteType === 'string' && n.metadata.noteType.trim()) {
           allNoteTypes.add(n.metadata.noteType.trim());

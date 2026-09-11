@@ -136,6 +136,7 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
         onChange={handleTagsChange}
         placeholder="Add tag (e.g. journal)..."
         prefix="#"
+        forceLowerCase={true}
         chipColorClass="bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shadow-xs"
         suggestions={existingTags}
       />

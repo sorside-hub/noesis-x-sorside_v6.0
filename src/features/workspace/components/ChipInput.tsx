@@ -11,6 +11,7 @@ interface ChipInputProps {
   chipColorClass?: string;
   helperText?: string;
   suggestions?: string[];
+  forceLowerCase?: boolean;
 }
 
 export const ChipInput: React.FC<ChipInputProps> = ({
@@ -22,6 +23,7 @@ export const ChipInput: React.FC<ChipInputProps> = ({
   chipColorClass = 'bg-bg-hover text-text-primary border-border-default',
   helperText,
   suggestions = [],
+  forceLowerCase = false,
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -29,8 +31,12 @@ export const ChipInput: React.FC<ChipInputProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const normalizedItems = forceLowerCase ? items.map((i) => i.toLowerCase()) : items;
   const filteredSuggestions = suggestions.filter(
-    (s) => !items.includes(s) && s.toLowerCase().includes(inputValue.toLowerCase())
+    (s) => {
+      const checkS = forceLowerCase ? s.toLowerCase() : s;
+      return !normalizedItems.includes(checkS) && checkS.toLowerCase().includes(inputValue.toLowerCase());
+    }
   );
 
   useEffect(() => {
@@ -48,6 +54,9 @@ export const ChipInput: React.FC<ChipInputProps> = ({
     let clean = rawVal.trim();
     if (prefix && clean.startsWith(prefix)) {
       clean = clean.substring(prefix.length).trim();
+    }
+    if (forceLowerCase) {
+      clean = clean.toLowerCase();
     }
     if (!clean) return;
 
@@ -171,7 +180,8 @@ export const ChipInput: React.FC<ChipInputProps> = ({
               type="text"
               value={inputValue}
               onChange={(e) => {
-                setInputValue(e.target.value);
+                const val = forceLowerCase ? e.target.value.toLowerCase() : e.target.value;
+                setInputValue(val);
                 setShowSuggestions(true);
                 setActiveIndex(-1);
               }}
@@ -179,6 +189,9 @@ export const ChipInput: React.FC<ChipInputProps> = ({
               onKeyDown={handleKeyDown}
               enterKeyHint="done"
               autoComplete="off"
+              autoCapitalize={forceLowerCase ? 'none' : undefined}
+              autoCorrect={forceLowerCase ? 'off' : undefined}
+              spellCheck={forceLowerCase ? false : undefined}
               placeholder={items.length === 0 ? placeholder : 'Add...'}
               className="w-full bg-transparent text-xs text-text-primary placeholder:text-text-muted/60 focus:outline-none px-1 py-0.5"
             />

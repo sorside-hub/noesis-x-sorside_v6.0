@@ -92,6 +92,60 @@ export const useVaultOperations = ({ setVault }: UseVaultOperationsProps) => {
     [setVault]
   );
 
+  const duplicateNote = useCallback(
+    (sourceId: string) => {
+      const id = `note_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+      setVault((prev) => {
+        if (!prev) return prev;
+        const sourceNode = prev.nodes[sourceId];
+        if (!sourceNode || sourceNode.type !== 'file') return prev;
+
+        const uniqueName = getUniqueNodeName(sourceNode.name, sourceNode.parentId, 'file', prev.nodes);
+        const newNote: FileNode = {
+          ...sourceNode,
+          id,
+          name: uniqueName,
+          type: 'file',
+          parentId: sourceNode.parentId,
+          content: sourceNode.content || '',
+          metadata: sourceNode.metadata ? { ...sourceNode.metadata } : {},
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        saveNode(newNote); // Async save
+
+        let newOpenTabs = [...prev.openTabs];
+        if (prev.activeTabId && prev.activeTabId.startsWith('empty_')) {
+          const idx = newOpenTabs.indexOf(prev.activeTabId);
+          if (idx !== -1) {
+            newOpenTabs[idx] = id;
+          } else {
+            newOpenTabs.push(id);
+          }
+        } else if (!newOpenTabs.includes(id)) {
+          newOpenTabs.push(id);
+        }
+
+        saveOpenTabs(newOpenTabs);
+        saveActiveTabId(id);
+
+        return {
+          ...prev,
+          nodes: {
+            ...prev.nodes,
+            [id]: newNote,
+          },
+          openTabs: newOpenTabs,
+          activeTabId: id,
+        };
+      });
+
+      return id;
+    },
+    [setVault]
+  );
+
   const updateNoteContent = useCallback(
     (id: string, content: string) => {
       setVault((prev) => {
@@ -298,6 +352,7 @@ export const useVaultOperations = ({ setVault }: UseVaultOperationsProps) => {
 
   return {
     createNote,
+    duplicateNote,
     createFolder,
     updateNoteContent,
     updateNodeTitle,

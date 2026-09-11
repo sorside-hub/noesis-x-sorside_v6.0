@@ -47,7 +47,7 @@ export const useAutocomplete = (
       if (n.type === 'file') {
         if (Array.isArray(n.metadata?.tags)) {
           n.metadata.tags.forEach((t) => {
-            const clean = t.trim().replace(/^#/, '');
+            const clean = t.trim().replace(/^#/, '').toLowerCase();
             if (clean) all.add(clean);
           });
         }
@@ -55,7 +55,7 @@ export const useAutocomplete = (
           const re = /(?:^|[^\p{L}\p{N}#_])(#[\p{L}\p{N}_\-\/]+)/gu;
           let m;
           while ((m = re.exec(n.content)) !== null) {
-            const tag = m[1].replace(/^#/, '');
+            const tag = m[1].replace(/^#/, '').toLowerCase();
             if (tag) all.add(tag);
           }
         }
@@ -346,7 +346,7 @@ export const useAutocomplete = (
       if (!editor) return;
       const { startPos, endPos } = tagPopupState;
       setTagPopupState((prev) => ({ ...prev, isOpen: false }));
-      const cleanTag = insertValue.trim().replace(/^#/, '').replace(/\s+/g, '-');
+      const cleanTag = insertValue.trim().replace(/^#/, '').replace(/\s+/g, '-').toLowerCase();
       editor
         .chain()
         .focus()

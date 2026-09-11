@@ -46,7 +46,7 @@ export const TagExplorer: React.FC<TagExplorerProps> = ({
     const handleOpenTag = (e: any) => {
       const rawTag = e.detail?.tag;
       if (!rawTag || typeof rawTag !== 'string') return;
-      const targetTag = rawTag.trim().replace(/^#/, '');
+      const targetTag = rawTag.trim().replace(/^#/, '').toLowerCase();
       if (!targetTag) return;
 
       // 1. Expand all parent segments so the tag is fully visible in tree mode

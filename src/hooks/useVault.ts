@@ -29,6 +29,7 @@ export const useVault = () => {
   // Vault File & Folder CRUD Operations Hook
   const {
     createNote,
+    duplicateNote,
     createFolder,
     updateNoteContent,
     updateNodeTitle,
@@ -45,6 +46,7 @@ export const useVault = () => {
     openInNewTab,
     closeTab,
     createNote,
+    duplicateNote,
     createFolder,
     updateNoteContent,
     updateNodeTitle,

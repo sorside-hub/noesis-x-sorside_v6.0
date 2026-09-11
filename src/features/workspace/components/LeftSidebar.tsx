@@ -25,6 +25,7 @@ interface LeftSidebarProps {
   onOpenInNewTab: (id: string) => void;
   onCreateNote: (parentId?: string | null) => void;
   onCreateFolder: (parentId?: string | null, name?: string) => void;
+  onDuplicateNote?: (id: string) => void;
   onRenameNode: (id: string, newName: string) => void;
   onMoveNode: (id: string, targetParentId: string | null) => void;
   onDeleteNode: (id: string) => void;
@@ -40,6 +41,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
   onOpenInNewTab,
   onCreateNote,
   onCreateFolder,
+  onDuplicateNote,
   onRenameNode,
   onMoveNode,
   onDeleteNode,
@@ -345,6 +347,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         handleCreateSubfolderInFolder={handleCreateSubfolderInFolder}
         onOpenInNewTab={onOpenInNewTab}
         onCloseMobile={onCloseMobile}
+        onDuplicateNote={onDuplicateNote ? (node) => onDuplicateNote(node.id) : undefined}
         handleStartRename={handleStartRename}
         handleStartMove={handleStartMove}
         handleExportNote={(node) => setExportingNode(node)}

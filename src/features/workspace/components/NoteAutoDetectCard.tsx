@@ -14,13 +14,13 @@ export const NoteAutoDetectCard: React.FC<NoteAutoDetectCardProps> = ({
   handleRunAutoDetect,
 }) => {
   return (
-    <div className="p-3 bg-bg-primary border border-border-default rounded-xl space-y-2">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-primary">
-        <Sparkles size={13} className="text-accent-primary" />
-        <span>AI Auto-Detect</span>
+    <div className="p-3 bg-bg-primary border border-border-default rounded-xl space-y-2.5 shadow-2xs">
+      <div className="flex items-center gap-1.5 text-xs font-semibold text-text-heading">
+        <Sparkles size={13} className="text-text-link" />
+        <span>Auto-Detect Metadata & Folder</span>
       </div>
 
-      <p className="text-[11px] text-text-muted leading-snug">
+      <p className="text-[11px] text-text-muted leading-relaxed">
         Analisis otomatis isi catatan untuk mengisi metadata, tags, dan menentukan folder yang paling sesuai.
       </p>
 

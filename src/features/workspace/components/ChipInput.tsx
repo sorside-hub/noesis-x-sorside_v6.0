@@ -151,7 +151,7 @@ export const ChipInput: React.FC<ChipInputProps> = ({
       <div className="relative">
         <div
           onClick={() => inputRef.current?.focus()}
-          className="min-h-[42px] p-2 bg-bg-surface border border-border-default hover:border-accent-primary/50 rounded-xl flex flex-wrap gap-1.5 items-center cursor-text transition-colors focus-within:border-accent-primary/50"
+          className="min-h-[42px] p-2 bg-bg-primary border border-border-default hover:border-border-hover focus-within:border-accent-primary/60 focus-within:ring-1 focus-within:ring-accent-primary/20 rounded-xl flex flex-wrap gap-1.5 items-center cursor-text transition-all shadow-2xs"
         >
           {items.map((item) => (
             <span
@@ -203,7 +203,7 @@ export const ChipInput: React.FC<ChipInputProps> = ({
                   e.stopPropagation();
                   commitValue();
                 }}
-                className="p-1 rounded-md text-text-primary hover:bg-bg-hover cursor-pointer shrink-0 transition-colors"
+                className="p-1 rounded-md text-text-secondary hover:text-text-heading hover:bg-bg-hover cursor-pointer shrink-0 transition-colors"
               >
                 <Plus size={13} />
               </button>
@@ -213,7 +213,7 @@ export const ChipInput: React.FC<ChipInputProps> = ({
         
         {/* Suggestions Dropdown */}
         {showSuggestions && filteredSuggestions.length > 0 && (
-          <div className="absolute z-[100] w-full mt-1 bg-bg-surface border border-border-default rounded-xl shadow-2xl max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute z-[100] w-full mt-1 bg-bg-elevated border border-border-default rounded-xl shadow-2xl ring-1 ring-black/10 dark:ring-white/10 max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
             {filteredSuggestions.map((suggestion, index) => (
               <button
                 key={suggestion}

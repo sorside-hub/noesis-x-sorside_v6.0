@@ -28,100 +28,64 @@ export const NoteRagCard: React.FC<NoteRagCardProps> = ({
   const [isCascadeModalOpen, setIsCascadeModalOpen] = useState(false);
 
   return (
-    <div className="space-y-2 pt-1">
-      <div className="flex items-center gap-1.5 text-[10px] font-bold text-accent-primary tracking-wider uppercase">
-        <Sparkles size={12} className="text-accent-primary" />
-        <span>AI RAG Analysis</span>
+    <div className="flex flex-col gap-2.5 p-3 rounded-xl bg-bg-primary border border-border-default text-xs transition-all duration-200 shadow-2xs">
+      {/* Card Header Row */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-text-heading">
+          <Sparkles size={13} className="text-text-link" />
+          <span>RAG Knowledge Index</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 text-[11px]">
+          {isSyncingRag ? (
+            <span className="flex items-center gap-1 text-text-link font-medium">
+              <Loader2 size={12} className="animate-spin" />
+              <span>Syncing...</span>
+            </span>
+          ) : ragSyncStatus === 'synced' ? (
+            <span className="flex items-center gap-1 text-status-success font-medium">
+              <CheckCircle2 size={12} />
+              <span>Indexed</span>
+            </span>
+          ) : ragSyncStatus === 'error' ? (
+            <span className="flex items-center gap-1 text-status-error font-medium">
+              <AlertCircle size={12} />
+              <span>Failed</span>
+            </span>
+          ) : ragSyncStatus === 'out_of_sync' ? (
+            <span className="flex items-center gap-1 text-status-warning font-medium">
+              <AlertCircle size={12} />
+              <span>Outdated</span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 text-text-muted font-medium">
+              <AlertCircle size={12} />
+              <span>Unindexed</span>
+            </span>
+          )}
+
+          {aiMetadata?.cascadeLog && aiMetadata.cascadeLog.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIsCascadeModalOpen(true)}
+              className="text-text-muted hover:text-text-heading transition-colors p-0.5 rounded-md hover:bg-bg-hover cursor-pointer ml-1"
+              title="Lihat riwayat proses model AI"
+            >
+              <Info size={13} />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2 p-3 rounded-xl bg-bg-primary border border-border-default text-xs transition-all duration-200">
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1.5 text-[12px]">
-            {isSyncingRag ? (
-              <>
-                <Loader2 size={13} className="animate-spin text-accent-primary" />
-                <span className="text-accent-primary font-medium">Processing...</span>
-              </>
-            ) : ragSyncStatus === 'synced' ? (
-              <div className="flex items-center gap-1.5 justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 size={13} className="text-status-success" />
-                  <span className="text-status-success font-medium">Up to Date</span>
-                </div>
-                {aiMetadata?.cascadeLog && aiMetadata.cascadeLog.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setIsCascadeModalOpen(true)}
-                    className="text-text-muted hover:text-accent-primary transition-colors flex items-center justify-center p-1 rounded-full hover:bg-accent-primary/10 cursor-pointer"
-                    title="Lihat riwayat proses model AI"
-                  >
-                    <Info size={13} />
-                  </button>
-                )}
-              </div>
-            ) : ragSyncStatus === 'error' ? (
-              <div className="flex items-center gap-1.5 justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <AlertCircle size={13} className="text-status-error" />
-                  <span className="text-status-error font-medium">Sync Failed</span>
-                </div>
-                {aiMetadata?.cascadeLog && aiMetadata.cascadeLog.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setIsCascadeModalOpen(true)}
-                    className="text-text-muted hover:text-status-error transition-colors flex items-center justify-center p-1 rounded-full hover:bg-status-error/10 cursor-pointer"
-                    title="Lihat riwayat error model AI"
-                  >
-                    <Info size={13} />
-                  </button>
-                )}
-              </div>
-            ) : ragSyncStatus === 'out_of_sync' ? (
-              <div className="flex items-center gap-1.5 justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <AlertCircle size={13} className="text-status-warning" />
-                  <span className="text-status-warning font-medium">Needs Update</span>
-                </div>
-                {aiMetadata?.cascadeLog && aiMetadata.cascadeLog.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setIsCascadeModalOpen(true)}
-                    className="text-text-muted hover:text-accent-primary transition-colors flex items-center justify-center p-1 rounded-full hover:bg-accent-primary/10 cursor-pointer"
-                    title="Lihat riwayat proses model AI sebelumnya"
-                  >
-                    <Info size={13} />
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 justify-between w-full">
-                <div className="flex items-center gap-1.5">
-                  <AlertCircle size={13} className="text-text-muted" />
-                  <span className="text-text-muted font-medium">Unprocessed</span>
-                </div>
-                {aiMetadata?.cascadeLog && aiMetadata.cascadeLog.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setIsCascadeModalOpen(true)}
-                    className="text-text-muted hover:text-accent-primary transition-colors flex items-center justify-center p-1 rounded-full hover:bg-accent-primary/10 cursor-pointer"
-                    title="Lihat riwayat proses model AI"
-                  >
-                    <Info size={13} />
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-          <p className="text-[10px] text-text-muted leading-relaxed">
-            {ragSyncStatus === 'synced'
-              ? 'Catatan ini sudah terindeks dan siap digunakan oleh AI.'
-              : ragSyncStatus === 'error'
-              ? 'Gagal memproses. Cek API key, koneksi, atau limitasi model Anda.'
-              : ragSyncStatus === 'out_of_sync'
-              ? 'Catatan ini telah diubah. Silakan update agar AI mengenali perubahan terbaru.'
-              : 'Proses catatan ini agar AI bisa membacanya sebagai konteks (RAG).'}
-          </p>
-        </div>
+      <p className="text-[11px] text-text-muted leading-relaxed">
+        {ragSyncStatus === 'synced'
+          ? 'Catatan ini sudah terindeks dan siap digunakan oleh AI sebagai konteks pencarian.'
+          : ragSyncStatus === 'error'
+          ? 'Gagal memproses. Cek API key, koneksi, atau limitasi model Anda.'
+          : ragSyncStatus === 'out_of_sync'
+          ? 'Catatan ini telah diubah. Silakan update agar AI mengenali perubahan terbaru.'
+          : 'Indeks catatan ini agar AI dapat membaca dan menggunakannya sebagai konteks (RAG).'}
+      </p>
 
         <div className="flex items-center gap-2 mt-1">
           <button
@@ -231,6 +195,5 @@ export const NoteRagCard: React.FC<NoteRagCardProps> = ({
           </div>
         )}
       </div>
-    </div>
   );
 };

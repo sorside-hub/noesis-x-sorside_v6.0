@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { supabase, getSupabaseConfig } from '../../../lib/supabase';
 import { EnrichedNoteItem } from '../types';
 import { VaultData } from '../../../types/vault';
-import { getLocalAiMetadataMap, syncLocalAiMetadata } from '../../../lib/db';
+import { getLocalAiMetadataMap, syncLocalAiMetadata, cleanupOrphanAiMetadata } from '../../../lib/db';
 import { extractNodeTags } from '../../workspace/utils/tagUtils';
 
 export function useHubData(vault: VaultData | null) {
@@ -14,8 +14,9 @@ export function useHubData(vault: VaultData | null) {
     async function fetchMetadata() {
       setIsLoading(true);
 
-      // 1. Immediate read from IndexedDB for zero-latency UI load
+      // 1. Immediate read from IndexedDB for zero-latency UI load (with automatic orphan cleanup)
       try {
+        await cleanupOrphanAiMetadata();
         const cachedMap = await getLocalAiMetadataMap();
         if (cachedMap && Object.keys(cachedMap).length > 0) {
           setAiMetadata(cachedMap);

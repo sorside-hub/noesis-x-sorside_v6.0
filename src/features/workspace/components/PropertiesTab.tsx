@@ -3,6 +3,7 @@ import {
   Folder,
   ChevronDown,
   Sliders,
+  Sparkles,
 } from 'lucide-react';
 import { FileNode } from '../../../types/vault';
 import { ChipInput } from './ChipInput';
@@ -137,7 +138,7 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
         placeholder="Add tag (e.g. journal)..."
         prefix="#"
         forceLowerCase={true}
-        chipColorClass="bg-accent-primary/10 text-accent-primary border border-accent-primary/20 shadow-xs"
+        chipColorClass="bg-accent-soft text-text-link border border-text-link/30 shadow-2xs font-medium"
         suggestions={existingTags}
       />
 
@@ -147,7 +148,7 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
         items={aliases}
         onChange={handleAliasesChange}
         placeholder="Add alias (e.g. Daily Note)..."
-        chipColorClass="bg-bg-surface text-text-muted border border-border-default hover:text-text-primary transition-colors"
+        chipColorClass="bg-bg-elevated text-text-primary border border-border-default shadow-2xs hover:border-border-hover transition-colors font-medium"
         helperText="Nama alias yang dapat memicu tautan [[wikilink]]."
       />
 
@@ -157,23 +158,33 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
         onChange={handleCustomPropertiesChange}
       />
 
-      {/* 8. AI RAG Brain Card */}
-      <NoteRagCard
-        isSyncingRag={isSyncingRag}
-        ragSyncStatus={ragSyncStatus}
-        aiMetadata={aiMetadata}
-        handleProcessRag={handleProcessRag}
-        handleRemoveRag={handleRemoveRag}
-      />
+      {/* 8. AI Intelligence Section Header & Cards */}
+      <div className="space-y-3 pt-1">
+        <div className="flex items-center gap-2">
+          <div className="h-px bg-border-subtle flex-1" />
+          <span className="text-[10px] font-bold text-accent-primary uppercase tracking-widest px-2 flex items-center gap-1.5">
+            <Sparkles size={11} className="text-accent-primary" />
+            <span>AI Intelligence</span>
+          </span>
+          <div className="h-px bg-border-subtle flex-1" />
+        </div>
 
-      <div className="h-px bg-border-subtle" />
+        <div className="space-y-2.5">
+          <NoteRagCard
+            isSyncingRag={isSyncingRag}
+            ragSyncStatus={ragSyncStatus}
+            aiMetadata={aiMetadata}
+            handleProcessRag={handleProcessRag}
+            handleRemoveRag={handleRemoveRag}
+          />
 
-      {/* 9. AI Auto-Detect Section */}
-      <NoteAutoDetectCard
-        isAutoDetecting={isAutoDetecting}
-        autoDetectError={autoDetectError}
-        handleRunAutoDetect={handleRunAutoDetect}
-      />
+          <NoteAutoDetectCard
+            isAutoDetecting={isAutoDetecting}
+            autoDetectError={autoDetectError}
+            handleRunAutoDetect={handleRunAutoDetect}
+          />
+        </div>
+      </div>
 
       <div className="h-px bg-border-subtle" />
 

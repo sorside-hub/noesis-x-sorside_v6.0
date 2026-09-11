@@ -175,6 +175,8 @@ export const deleteNodes = async (ids: string[]): Promise<void> => {
   }
   try {
     await db.nodes.bulkDelete(ids);
+    // Also delete associated AI metadata cache in IndexedDB
+    await db.ai_metadata.bulkDelete(ids);
     // Background cloud sync (fire-and-forget)
     deleteNodesFromCloud(ids).catch(console.error);
   } catch (err) {

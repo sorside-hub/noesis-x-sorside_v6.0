@@ -46,6 +46,7 @@ export const initRealtimeSync = async () => {
 
               // 2. Delete from local IndexedDB
               await db.nodes.delete(deletedId);
+              await db.ai_metadata.delete(deletedId);
 
               // 3. Smart Ghost Tab Cleanup: prune deleted ID from openTabs and adjust activeTabId
               try {
@@ -247,6 +248,12 @@ export const deleteNodesFromCloud = async (ids: string[]): Promise<void> => {
   // Mark all IDs as recently deleted and cancel any pending push timers (Resurrect Guard)
   for (const id of ids) {
     markNodeAsDeleted(id);
+  }
+  // Ensure local ai_metadata is purged immediately
+  try {
+    await db.ai_metadata.bulkDelete(ids);
+  } catch (err) {
+    console.warn('Failed to delete local ai_metadata in deleteNodesFromCloud:', err);
   }
   try {
     const userId = await getUserId();

@@ -193,50 +193,52 @@
     --status-info-border: rgba(43, 108, 176, 0.28);
   }
 
+  [data-theme="charcoal-navy"],
+  [data-theme="monochrome-dark-blue"],
   [data-theme="soft-monochrome"] {
-    /* Backgrounds - Slate Charcoal yang lembut */
-    --bg-primary: #121316;
-    --bg-surface: #1a1b1e;
-    --bg-hover: #24262b;
-    --bg-elevated: #2b2d33;
+    /* Backgrounds - True Neutral Deep Charcoal (from R:16 G:16 B:16, R:33 G:33 B:33, R:46 G:46 B:46) */
+    --bg-primary: #101010;
+    --bg-surface: #212121;
+    --bg-hover: #2a2a2a;
+    --bg-elevated: #2e2e2e;
 
-    /* Borders - Subtle monochrome */
-    --border-default: rgba(255, 255, 255, 0.12);
-    --border-subtle: rgba(255, 255, 255, 0.06);
+    /* Borders - Refined Neutral Charcoal Boundaries */
+    --border-default: rgba(255, 255, 255, 0.10);
+    --border-subtle: rgba(255, 255, 255, 0.05);
 
-    /* Typography - Off-white anti silau */
-    --text-heading: #f4f4f5;
-    --text-primary: #d4d4d8;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --text-disabled: #52525b;
+    /* Typography - Soft Metallic Ash & Off-white (from R:212 G:214 B:213, R:185 G:185 B:185) */
+    --text-heading: #f0f2f1;
+    --text-primary: #d4d6d5;
+    --text-secondary: #b9b9b9;
+    --text-muted: rgba(185, 185, 185, 0.50);
+    --text-disabled: rgba(185, 185, 185, 0.25);
     --text-bold: #ffffff;
-    --text-inverse: #121316;
-    --text-link: #e4e4e7;
-    --text-code: #e4e4e7;
-    --text-quote: #a1a1aa;
+    --text-inverse: #101010;
+    --text-link: #3894e6;
+    --text-code: #60a5fa;
+    --text-quote: rgba(212, 214, 213, 0.65);
 
-    /* Accents - Soft Neutral / Silver */
-    --accent-primary: #e4e4e7;
-    --accent-soft: rgba(255, 255, 255, 0.08);
-    --accent-contrast: #121316;
+    /* Accents - Deep Ocean Navy (from R:5 G:66 B:111 / R:9 G:68 B:112) */
+    --accent-primary: #05426f;
+    --accent-soft: rgba(5, 66, 111, 0.28);
+    --accent-contrast: #ffffff;
 
-    /* Status - Muted Tones */
-    --status-success: #4ade80;
-    --status-success-bg: rgba(74, 222, 128, 0.10);
-    --status-success-border: rgba(74, 222, 128, 0.25);
+    /* Status - Balanced for Deep Charcoal Canvas */
+    --status-success: #34d399;
+    --status-success-bg: rgba(52, 211, 153, 0.12);
+    --status-success-border: rgba(52, 211, 153, 0.28);
 
     --status-warning: #fbbf24;
-    --status-warning-bg: rgba(251, 191, 36, 0.10);
-    --status-warning-border: rgba(251, 191, 36, 0.25);
+    --status-warning-bg: rgba(251, 191, 36, 0.12);
+    --status-warning-border: rgba(251, 191, 36, 0.28);
 
     --status-error: #f87171;
-    --status-error-bg: rgba(248, 113, 113, 0.10);
-    --status-error-border: rgba(248, 113, 113, 0.25);
+    --status-error-bg: rgba(248, 113, 113, 0.12);
+    --status-error-border: rgba(248, 113, 113, 0.28);
 
-    --status-info: #60a5fa;
-    --status-info-bg: rgba(96, 165, 250, 0.10);
-    --status-info-border: rgba(96, 165, 250, 0.25);
+    --status-info: #3894e6;
+    --status-info-bg: rgba(56, 148, 230, 0.12);
+    --status-info-border: rgba(56, 148, 230, 0.28);
   }
 }
 

@@ -73,6 +73,14 @@ export const syncPullFromCloud = async (): Promise<SyncSummary> => {
         }
       }
 
+      if (deletedNodeIds.length > 0) {
+        try {
+          await db.ai_metadata.bulkDelete(deletedNodeIds);
+        } catch (err) {
+          console.warn('Failed to delete reconciled ai_metadata:', err);
+        }
+      }
+
       // Smart Ghost Tab Cleanup: prune any reconciled deleted nodes from openTabs
       if (deletedNodeIds.length > 0) {
         try {

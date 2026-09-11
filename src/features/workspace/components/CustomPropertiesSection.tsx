@@ -44,7 +44,7 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
 
       <div className="space-y-2">
         {customProperties.map((prop) => (
-          <div key={prop.id} className="flex flex-col gap-1.5 p-2 bg-bg-surface border border-border-default hover:border-accent-primary/50 rounded-lg group transition-colors">
+          <div key={prop.id} className="flex flex-col gap-2 p-2.5 bg-bg-primary border border-border-default hover:border-border-hover rounded-xl group transition-all shadow-2xs">
             
             <div className="flex items-center justify-between gap-2">
               <div className="flex-1 flex items-center gap-2">
@@ -57,7 +57,7 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
                       e.currentTarget.blur();
                     }
                   }}
-                  className="bg-transparent text-xs font-semibold text-text-heading focus:outline-none focus:text-accent-primary w-full"
+                  className="bg-transparent text-xs font-semibold text-text-heading placeholder:text-text-muted/60 focus:outline-none focus:text-text-link w-full"
                   placeholder="Property Name"
                 />
               </div>
@@ -67,33 +67,33 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
                   <select
                     value={prop.type}
                     onChange={(e) => handleUpdateProperty(prop.id, { type: e.target.value as PropertyType, value: '' })}
-                    className="appearance-none bg-bg-surface border border-border-default rounded-md text-[10px] text-text-muted px-2 py-1 pr-6 focus:outline-none focus:border-accent-primary/50 cursor-pointer uppercase font-bold tracking-wider"
+                    className="appearance-none bg-bg-elevated border border-border-default rounded-lg text-[10px] text-text-secondary px-2.5 py-1 pr-6 focus:outline-none focus:border-border-hover cursor-pointer uppercase font-bold tracking-wider shadow-2xs"
                   >
                     <option value="text">TEXT</option>
                     <option value="number">NUMBER</option>
                     <option value="date">DATE</option>
                     <option value="checkbox">BOOLEAN</option>
                   </select>
-                  <ChevronDown size={10} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
+                  <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
                 </div>
                 
                 <button
                   type="button"
                   onClick={() => handleDeleteProperty(prop.id)}
                   title="Delete property"
-                  className="p-1 rounded-md text-status-error/80 hover:text-status-error bg-status-error-bg/30 hover:bg-status-error-bg border border-status-error-border/40 hover:border-status-error-border transition-all cursor-pointer shrink-0"
+                  className="p-1 rounded-lg text-status-error/80 hover:text-status-error bg-status-error-bg/30 hover:bg-status-error-bg border border-status-error-border/40 hover:border-status-error-border transition-all cursor-pointer shrink-0"
                 >
                   <Trash2 size={13} />
                 </button>
               </div>
             </div>
 
-            <div className="mt-1">
+            <div className="mt-0.5">
               {prop.type === 'checkbox' ? (
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer py-0.5">
                   <div className={twMerge(
                     "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                    prop.value ? "bg-accent-primary border-accent-primary text-accent-contrast" : "border-border-default"
+                    prop.value ? "bg-accent-primary border-accent-primary text-accent-contrast" : "bg-bg-elevated border-border-default"
                   )}>
                     {prop.value && <Check size={12} strokeWidth={3} />}
                   </div>
@@ -103,7 +103,7 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
                     onChange={(e) => handleUpdateProperty(prop.id, { value: e.target.checked })}
                     className="hidden"
                   />
-                  <span className="text-xs text-text-muted">{prop.value ? 'True' : 'False'}</span>
+                  <span className="text-xs text-text-secondary">{prop.value ? 'True' : 'False'}</span>
                 </label>
               ) : prop.type === 'date' ? (
                 <div className="relative w-full">
@@ -127,7 +127,7 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
                       }
                     }}
                     className={twMerge(
-                      "w-full bg-bg-surface border border-border-default focus:border-accent-primary/50 rounded-md px-2.5 py-1.5 text-xs focus:outline-none transition-colors cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer relative z-10",
+                      "w-full bg-bg-elevated border border-border-default focus:border-border-hover rounded-lg px-2.5 py-1.5 text-xs focus:outline-none transition-colors cursor-pointer shadow-2xs [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer relative z-10",
                       prop.value ? "text-text-primary" : "text-transparent"
                     )}
                   />
@@ -152,7 +152,7 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
                     }
                   }}
                   placeholder="Empty..."
-                  className="w-full bg-bg-surface border border-border-default focus:border-accent-primary/50 rounded-md px-2.5 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:outline-none transition-colors"
+                  className="w-full bg-bg-elevated border border-border-default focus:border-border-hover rounded-lg px-2.5 py-1.5 text-xs text-text-primary placeholder:text-text-muted/60 focus:outline-none transition-colors shadow-2xs"
                 />
               )}
             </div>
@@ -164,9 +164,9 @@ export const CustomPropertiesSection: React.FC<CustomPropertiesSectionProps> = (
       <button
         type="button"
         onClick={handleAddProperty}
-        className="w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-dashed border-border-default hover:border-accent-primary/50 text-text-muted hover:text-accent-primary rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+        className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 bg-bg-primary/70 hover:bg-bg-elevated border border-border-default hover:border-border-hover text-text-secondary hover:text-text-heading rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs group"
       >
-        <Plus size={14} />
+        <Plus size={14} className="text-text-link transition-transform group-hover:scale-110" />
         <span>Add Property</span>
       </button>
 

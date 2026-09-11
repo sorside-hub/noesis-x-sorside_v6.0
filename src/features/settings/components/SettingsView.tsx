@@ -126,26 +126,26 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
               )}
             </button>
 
-            {/* Soft Monochrome Option */}
+            {/* Charcoal Navy Option */}
             <button
               type="button"
-              onClick={() => setTheme('soft-monochrome')}
+              onClick={() => setTheme('charcoal-navy')}
               className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-2.5 cursor-pointer ${
-                theme === 'soft-monochrome'
+                theme === 'charcoal-navy' || theme === 'soft-monochrome' || theme === 'monochrome-dark-blue'
                   ? 'bg-bg-surface border-accent-primary ring-1 ring-accent-primary shadow-xs'
                   : 'bg-bg-surface border-border-default hover:border-accent-primary/40 hover:bg-bg-hover'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="p-2 rounded-lg bg-[#1a1b1e] text-[#e4e4e7] border border-[#2b2d33] shadow-xs shrink-0">
-                  <Contrast size={16} className="text-[#e4e4e7]" />
+                <div className="p-2 rounded-lg bg-[#101010] text-[#3894e6] border border-[#2e2e2e] shadow-xs shrink-0">
+                  <Contrast size={16} className="text-[#3894e6]" />
                 </div>
                 <div className="min-w-0">
-                  <span className="text-sm font-semibold text-text-heading block truncate">Monochrome</span>
-                  <span className="text-[11px] text-text-muted block truncate">Soft Slate</span>
+                  <span className="text-sm font-semibold text-text-heading block truncate">Charcoal Navy</span>
+                  <span className="text-[11px] text-text-muted block truncate">Deep Charcoal & Navy</span>
                 </div>
               </div>
-              {theme === 'soft-monochrome' && (
+              {(theme === 'charcoal-navy' || theme === 'soft-monochrome' || theme === 'monochrome-dark-blue') && (
                 <div className="w-5 h-5 rounded-full bg-accent-primary text-accent-contrast flex items-center justify-center shrink-0">
                   <Check size={12} strokeWidth={2.5} />
                 </div>

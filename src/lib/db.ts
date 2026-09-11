@@ -1,6 +1,7 @@
 import Dexie, { Table } from 'dexie';
 import { FileNode } from '../types/vault';
 import { AIAnalysisRecord, EmbeddingRecord } from '../features/rag/types/models';
+import { isNodeRecentlyDeleted } from './sync/syncHelpers';
 
 export interface AppSetting {
   key: string;
@@ -110,25 +111,39 @@ export async function getLocalAiMetadataMap(): Promise<Record<string, any>> {
 export async function syncLocalAiMetadata(remoteMetadataList: any[]): Promise<Record<string, any>> {
   const resultMap: Record<string, any> = {};
   try {
+    const allNodes = await db.nodes.toArray();
+    const validNodeIdSet = new Set(allNodes.map((n) => n.id));
+
     await db.transaction('rw', db.ai_metadata, async () => {
       // Preserve existing cascadeLog locally
       const existingItems = await db.ai_metadata.toArray();
       const existingMap = new Map();
-      existingItems.forEach(item => {
+      existingItems.forEach((item) => {
         if (item.note_id && item.cascadeLog) {
           existingMap.set(item.note_id, item.cascadeLog);
         }
       });
 
       await db.ai_metadata.clear();
-      
+
       if (remoteMetadataList && remoteMetadataList.length > 0) {
-        const toAdd = remoteMetadataList.filter(item => item.note_id).map(item => ({
-          ...item,
-          cascadeLog: existingMap.get(item.note_id) || item.cascadeLog
-        }));
-        await db.ai_metadata.bulkPut(toAdd);
-        
+        const toAdd = remoteMetadataList
+          .filter((item) => {
+            if (!item.note_id) return false;
+            // Never re-add recently deleted nodes or notes that do not exist locally
+            if (isNodeRecentlyDeleted(item.note_id)) return false;
+            if (validNodeIdSet.size > 0 && !validNodeIdSet.has(item.note_id)) return false;
+            return true;
+          })
+          .map((item) => ({
+            ...item,
+            cascadeLog: existingMap.get(item.note_id) || item.cascadeLog,
+          }));
+
+        if (toAdd.length > 0) {
+          await db.ai_metadata.bulkPut(toAdd);
+        }
+
         toAdd.forEach((item) => {
           resultMap[item.note_id] = item;
         });
@@ -136,12 +151,38 @@ export async function syncLocalAiMetadata(remoteMetadataList: any[]): Promise<Re
     });
   } catch (error) {
     console.warn('[DB] Failed to sync local ai_metadata', error);
-    // Even if local DB fails, we still return the map so UI can render
+    // Even if local DB fails, return non-deleted map so UI can render
     remoteMetadataList.forEach((item) => {
-      if (item.note_id) {
+      if (item.note_id && !isNodeRecentlyDeleted(item.note_id)) {
         resultMap[item.note_id] = item;
       }
     });
   }
   return resultMap;
+}
+
+/**
+ * Cleans up any orphan records in local IndexedDB ai_metadata
+ * whose note_id no longer exists in db.nodes or is marked as recently deleted.
+ */
+export async function cleanupOrphanAiMetadata(): Promise<number> {
+  try {
+    const [allNodes, allMetadata] = await Promise.all([
+      db.nodes.toArray(),
+      db.ai_metadata.toArray(),
+    ]);
+    const validNodeIdSet = new Set(allNodes.map((n) => n.id));
+    const orphanIds = allMetadata
+      .map((m) => m.note_id)
+      .filter((id) => id && (!validNodeIdSet.has(id) || isNodeRecentlyDeleted(id)));
+
+    if (orphanIds.length > 0) {
+      await db.ai_metadata.bulkDelete(orphanIds);
+      console.log(`[DB] Cleaned up ${orphanIds.length} orphan ai_metadata records.`);
+    }
+    return orphanIds.length;
+  } catch (error) {
+    console.warn('[DB] Failed to clean up orphan ai_metadata:', error);
+    return 0;
+  }
 }

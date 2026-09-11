@@ -45,15 +45,11 @@ CREATE TABLE IF NOT EXISTS note_metadata (
 );
 
 DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_note_metadata_nodes' AND table_name = 'note_metadata'
-  ) THEN
-    DELETE FROM note_metadata WHERE note_id NOT IN (SELECT id FROM nodes);
-    ALTER TABLE note_metadata
-      ADD CONSTRAINT fk_note_metadata_nodes
-      FOREIGN KEY (note_id) REFERENCES nodes(id) ON DELETE CASCADE;
-  END IF;
+  DELETE FROM note_metadata WHERE note_id NOT IN (SELECT id FROM nodes);
+  ALTER TABLE note_metadata DROP CONSTRAINT IF EXISTS fk_note_metadata_nodes;
+  ALTER TABLE note_metadata
+    ADD CONSTRAINT fk_note_metadata_nodes
+    FOREIGN KEY (note_id) REFERENCES nodes(id) ON DELETE CASCADE;
 EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
@@ -92,15 +88,11 @@ EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_note_embeddings_nodes' AND table_name = 'note_embeddings'
-  ) THEN
-    DELETE FROM note_embeddings WHERE note_id NOT IN (SELECT id FROM nodes);
-    ALTER TABLE note_embeddings
-      ADD CONSTRAINT fk_note_embeddings_nodes
-      FOREIGN KEY (note_id) REFERENCES nodes(id) ON DELETE CASCADE;
-  END IF;
+  DELETE FROM note_embeddings WHERE note_id NOT IN (SELECT id FROM nodes);
+  ALTER TABLE note_embeddings DROP CONSTRAINT IF EXISTS fk_note_embeddings_nodes;
+  ALTER TABLE note_embeddings
+    ADD CONSTRAINT fk_note_embeddings_nodes
+    FOREIGN KEY (note_id) REFERENCES nodes(id) ON DELETE CASCADE;
 EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
 

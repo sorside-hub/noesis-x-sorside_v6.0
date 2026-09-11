@@ -41,7 +41,7 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
           : 'opacity-100 translate-y-0 pointer-events-auto'
       )}
     >
-      <div className="flex items-center gap-1 px-2 py-1.5 bg-bg-surface/95 backdrop-blur-md border border-accent-primary/20 rounded-full shadow-[0_4px_15px_rgba(197,163,106,0.1)] transition-transform">
+      <div className="flex items-center gap-1 px-2.5 py-1.5 bg-bg-elevated/95 backdrop-blur-md border border-border-default ring-1 ring-black/5 dark:ring-white/10 rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.35)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.55)] transition-all">
         {/* TAB: BOOKMARKS */}
         {activeTab === 'bookmarks' ? (
           <>
@@ -52,9 +52,9 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
               onClick={() => {
                 if (onCreateBookmarkGroup) onCreateBookmarkGroup();
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
             >
-              <FolderPlus size={14} className="text-accent-primary opacity-80" />
+              <FolderPlus size={14} className="text-text-link opacity-90" />
               <span>Grup</span>
             </button>
 
@@ -68,11 +68,11 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
               className={twMerge(
                 'p-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer',
                 isTreeSearchOpen
-                  ? 'bg-accent-primary/10 text-accent-primary'
-                  : 'text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10'
+                  ? 'bg-bg-hover text-text-heading ring-1 ring-border-default'
+                  : 'text-text-secondary hover:text-text-heading hover:bg-bg-hover'
               )}
             >
-              <Search size={14} />
+              <Search size={14} className={isTreeSearchOpen ? 'text-text-link' : ''} />
             </button>
 
             {/* 3. Expand / Collapse Groups */}
@@ -81,12 +81,12 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
                 type="button"
                 title={areAllGroupsCollapsed ? 'Buka Semua Grup' : 'Tutup Semua Grup'}
                 onClick={handleToggleExpandCollapseAllGroups}
-                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10 transition-colors cursor-pointer group"
+                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer group"
               >
                 {areAllGroupsCollapsed ? (
-                  <ChevronsUpDown size={14} className="text-accent-primary opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <ChevronsUpDown size={14} className="text-text-link opacity-90 group-hover:opacity-100 transition-opacity" />
                 ) : (
-                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-accent-primary transition-colors" />
+                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-text-heading transition-colors" />
                 )}
               </button>
             )}
@@ -102,9 +102,9 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
                 onCreateNote(null);
                 onCloseMobile();
               }}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
             >
-              <Plus size={14} className="text-accent-primary opacity-80" />
+              <Plus size={14} className="text-text-link opacity-90" />
               <span>Catatan</span>
             </button>
 
@@ -114,9 +114,9 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
                 type="button"
                 title="Folder Baru"
                 onClick={() => onCreateFolder(null)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
               >
-                <FolderPlus size={14} className="text-accent-primary opacity-80" />
+                <FolderPlus size={14} className="text-text-link opacity-90" />
                 <span>Folder</span>
               </button>
             )}
@@ -131,11 +131,11 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
               className={twMerge(
                 'p-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer',
                 isTreeSearchOpen
-                  ? 'bg-accent-primary/10 text-accent-primary'
-                  : 'text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10'
+                  ? 'bg-bg-hover text-text-heading ring-1 ring-border-default'
+                  : 'text-text-secondary hover:text-text-heading hover:bg-bg-hover'
               )}
             >
-              <Search size={14} />
+              <Search size={14} className={isTreeSearchOpen ? 'text-text-link' : ''} />
             </button>
 
             {/* 4. Expand / Collapse Folders (files tab) */}
@@ -144,12 +144,12 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
                 type="button"
                 title={areAllFoldersCollapsed ? 'Buka Semua Folder' : 'Tutup Semua Folder'}
                 onClick={handleToggleExpandCollapseAll}
-                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10 transition-colors cursor-pointer group"
+                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer group"
               >
                 {areAllFoldersCollapsed ? (
-                  <ChevronsUpDown size={14} className="text-accent-primary opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <ChevronsUpDown size={14} className="text-text-link opacity-90 group-hover:opacity-100 transition-opacity" />
                 ) : (
-                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-accent-primary transition-colors" />
+                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-text-heading transition-colors" />
                 )}
               </button>
             )}

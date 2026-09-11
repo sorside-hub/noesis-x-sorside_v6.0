@@ -43,7 +43,7 @@ export const RightSidebarTabSwitcher: React.FC<RightSidebarTabSwitcherProps> = (
     >
       {/* POPUP SELECTION LIST (SIDEBAR VIEW) */}
       {isTabMenuOpen && (
-        <div className="bg-bg-surface border border-border-default rounded-2xl shadow-2xl p-2 space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-150">
+        <div className="bg-bg-elevated/95 backdrop-blur-md border border-border-default rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.5)] ring-1 ring-black/5 dark:ring-white/10 p-2 space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-150">
           <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted tracking-wider uppercase">
             Sidebar View
           </div>
@@ -61,8 +61,8 @@ export const RightSidebarTabSwitcher: React.FC<RightSidebarTabSwitcherProps> = (
                 className={twMerge(
                   'w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer group',
                   isSelected
-                    ? 'bg-accent-primary/10 text-accent-primary font-semibold border border-accent-primary/25 shadow-2xs'
-                    : 'text-text-secondary hover:text-accent-primary hover:bg-accent-primary/10'
+                    ? 'bg-bg-hover text-text-heading font-semibold border border-border-default shadow-2xs'
+                    : 'text-text-secondary hover:text-text-heading hover:bg-bg-hover'
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -70,12 +70,12 @@ export const RightSidebarTabSwitcher: React.FC<RightSidebarTabSwitcherProps> = (
                     size={15}
                     className={twMerge(
                       'transition-colors duration-150',
-                      isSelected ? 'text-accent-primary' : 'text-text-muted group-hover:text-accent-primary'
+                      isSelected ? 'text-text-link' : 'text-text-muted group-hover:text-text-heading'
                     )}
                   />
                   <span className="transition-colors duration-150">{tab.label}</span>
                 </div>
-                {isSelected && <Check size={14} className="text-accent-primary" strokeWidth={2.5} />}
+                {isSelected && <Check size={14} className="text-text-link" strokeWidth={2.5} />}
               </button>
             );
           })}
@@ -86,17 +86,17 @@ export const RightSidebarTabSwitcher: React.FC<RightSidebarTabSwitcherProps> = (
       <button
         type="button"
         onClick={() => setIsTabMenuOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between px-4 py-2.5 bg-bg-surface/95 backdrop-blur-md border border-accent-primary/20 rounded-full shadow-[0_4px_15px_rgba(197,163,106,0.1)] hover:border-accent-primary/50 hover:bg-accent-primary/5 transition-all cursor-pointer text-xs group"
+        className="w-full flex items-center justify-between px-4 py-2.5 bg-bg-elevated/95 backdrop-blur-md border border-border-default ring-1 ring-black/5 dark:ring-white/10 rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.35)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.55)] hover:bg-bg-hover transition-all cursor-pointer text-xs group"
       >
-        <div className="flex items-center gap-2.5 font-semibold text-accent-primary">
-          <CurrentTabIcon size={15} className="text-accent-primary transition-transform group-hover:scale-105" />
+        <div className="flex items-center gap-2.5 font-semibold text-text-heading">
+          <CurrentTabIcon size={15} className="text-text-link transition-transform group-hover:scale-105" />
           <span>{currentTabObj.label}</span>
         </div>
-        <div className="flex items-center gap-1 text-accent-primary/60 group-hover:text-accent-primary text-[11px] transition-colors">
+        <div className="flex items-center gap-1 text-text-muted group-hover:text-text-secondary text-[11px] transition-colors">
           <span>Switch Tab</span>
           <ChevronDown
             size={13}
-            className={twMerge('transition-transform duration-200 text-accent-primary/60 group-hover:text-accent-primary', isTabMenuOpen && 'rotate-180')}
+            className={twMerge('transition-transform duration-200 text-text-muted group-hover:text-text-secondary', isTabMenuOpen && 'rotate-180')}
           />
         </div>
       </button>

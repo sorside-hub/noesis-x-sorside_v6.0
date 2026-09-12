@@ -76,7 +76,6 @@
 }
 
 @layer base {
-  :root,
   .dark,
   [data-theme="sophisticated-dark"] {
     --bg-primary: #050505;
@@ -116,6 +115,7 @@
     --status-info-border: rgba(96, 165, 250, 0.30);
   }
 
+  :root,
   .light,
   [data-theme="editorial-light"] {
     --bg-primary: #F7F5F0;

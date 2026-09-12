@@ -12,7 +12,7 @@ export const useTheme = () => {
         return saved as ThemeMode;
       }
     } catch (e) {}
-    return 'sophisticated-dark';
+    return 'editorial-light';
   });
 
   // Sync with Dexie on mount
@@ -48,9 +48,12 @@ export const useTheme = () => {
     } else if (theme === 'charcoal-navy' || theme === 'soft-monochrome' || theme === 'monochrome-dark-blue') {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'charcoal-navy');
-    } else {
+    } else if (theme === 'sophisticated-dark') {
       root.classList.add('dark');
       root.setAttribute('data-theme', 'sophisticated-dark');
+    } else {
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'editorial-light');
     }
   }, [theme]);
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" class="light" data-theme="editorial-light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
@@ -7,11 +7,11 @@
     <meta name="description" content="Offline-first Personal Knowledge Management & Second Brain powered by local AI." />
     
     <!-- PWA Primary & Theme Colors -->
-    <meta name="theme-color" content="#050505" />
-    <meta name="background-color" content="#050505" />
+    <meta name="theme-color" content="#F7F5F0" />
+    <meta name="background-color" content="#F7F5F0" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Noesis" />
     <meta name="application-name" content="Noesis" />
 
@@ -33,14 +33,18 @@
       (function() {
         try {
           var saved = localStorage.getItem('noesis_theme_mode');
-          if (saved === 'editorial-light') {
+          if (saved === 'sophisticated-dark' || saved === 'charcoal-navy' || saved === 'soft-monochrome' || saved === 'monochrome-dark-blue') {
+            document.documentElement.classList.remove('light');
+            document.documentElement.classList.add('dark');
+            document.documentElement.setAttribute('data-theme', saved === 'sophisticated-dark' ? 'sophisticated-dark' : 'charcoal-navy');
+          } else if (saved === 'warm-parchment') {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            document.documentElement.setAttribute('data-theme', 'warm-parchment');
+          } else {
             document.documentElement.classList.remove('dark');
             document.documentElement.classList.add('light');
             document.documentElement.setAttribute('data-theme', 'editorial-light');
-          } else if (saved === 'sophisticated-dark') {
-            document.documentElement.classList.remove('light');
-            document.documentElement.classList.add('dark');
-            document.documentElement.setAttribute('data-theme', 'sophisticated-dark');
           }
         } catch (e) {}
       })();

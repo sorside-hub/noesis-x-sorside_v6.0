@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Search, FileText, Folder, Hash, FolderTree, Bookmark, Star } from 'lucide-react';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { twMerge } from 'tailwind-merge';
@@ -17,6 +17,7 @@ import { FloatingActionPill } from './FloatingActionPill';
 import { BookmarkModal } from './BookmarkModal';
 import { ExportNoteModal } from '../../../components/modals/ExportNoteModal';
 import { FileNode } from '../../../types/vault';
+import { TagNodeData } from '../utils/tagUtils';
 
 interface LeftSidebarProps {
   vault: VaultData;
@@ -124,6 +125,47 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
 
   const [isCreatingBookmarkGroup, setIsCreatingBookmarkGroup] = useState(false);
   const [exportingNode, setExportingNode] = useState<FileNode | null>(null);
+
+  // 1. State & handlers for Tag Explorer expand/collapse
+  const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
+
+  const allFullTagKeys = useMemo(() => {
+    const keys: string[] = [];
+    const traverse = (node: TagNodeData) => {
+      keys.push(node.fullTag);
+      Object.values(node.subTags).forEach(traverse);
+    };
+    Object.values(tagData.tagTree).forEach(traverse);
+    return keys;
+  }, [tagData.tagTree]);
+
+  const areAllTagsExpanded = allFullTagKeys.length > 0 && allFullTagKeys.every((k) => expandedTags.has(k));
+  const areAllTagsCollapsed = allFullTagKeys.length === 0 || expandedTags.size === 0;
+
+  const handleToggleExpandCollapseAllTags = () => {
+    if (areAllTagsExpanded) {
+      setExpandedTags(new Set());
+    } else {
+      setExpandedTags(new Set(allFullTagKeys));
+    }
+  };
+
+  // 2. State & handlers for Bookmarks Explorer group expand/collapse
+  const [expandedBookmarkGroups, setExpandedBookmarkGroups] = useState<Set<string>>(new Set());
+
+  const areAllBookmarkGroupsExpanded =
+    bookmarksData.groups.length > 0 &&
+    bookmarksData.groups.every((g) => expandedBookmarkGroups.has(g.id));
+  const areAllBookmarkGroupsCollapsed =
+    bookmarksData.groups.length === 0 || expandedBookmarkGroups.size === 0;
+
+  const handleToggleExpandCollapseAllBookmarkGroups = () => {
+    if (areAllBookmarkGroupsExpanded) {
+      setExpandedBookmarkGroups(new Set());
+    } else {
+      setExpandedBookmarkGroups(new Set(bookmarksData.groups.map((g) => g.id)));
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col bg-bg-surface border-r border-border-default overflow-hidden select-none relative">
@@ -294,6 +336,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             activeFileId={activeFileId}
             onSelectFile={onSelectFile}
             onCloseMobile={onCloseMobile}
+            expandedTags={expandedTags}
+            setExpandedTags={setExpandedTags}
           />
         ) : (
           <BookmarksExplorer
@@ -312,6 +356,8 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
             onDeleteGroup={bookmarksData.deleteGroup}
             isCreatingGroupExternal={isCreatingBookmarkGroup}
             setIsCreatingGroupExternal={setIsCreatingBookmarkGroup}
+            expandedGroups={expandedBookmarkGroups}
+            setExpandedGroups={setExpandedBookmarkGroups}
           />
         )}
       </div>
@@ -332,6 +378,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
         setIsTreeSearchOpen={setIsTreeSearchOpen}
         areAllFoldersCollapsed={areAllFoldersCollapsed}
         handleToggleExpandCollapseAll={handleToggleExpandCollapseAll}
+        areAllTagsCollapsed={areAllTagsCollapsed}
+        handleToggleExpandCollapseAllTags={handleToggleExpandCollapseAllTags}
+        areAllGroupsCollapsed={areAllBookmarkGroupsCollapsed}
+        handleToggleExpandCollapseAllGroups={handleToggleExpandCollapseAllBookmarkGroups}
       />
 
       {/* ----------------------------------------------------------- */}

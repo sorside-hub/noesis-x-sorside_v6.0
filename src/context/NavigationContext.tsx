@@ -93,6 +93,28 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({
     safeReplaceState(initialEntry);
   }, []);
 
+  // Keep the current history entry in sync whenever activeTabId, view, or mediaCategory changes outside popstate
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (isPopStateNavigatingRef.current) return;
+
+    if (window.history && window.history.state) {
+      const currentState = window.history.state as NavigationHistoryEntry;
+      if (
+        currentState.activeTabId !== activeTabId ||
+        currentState.view !== view ||
+        currentState.mediaCategory !== mediaCategory
+      ) {
+        safeReplaceState({
+          ...currentState,
+          view,
+          activeTabId,
+          mediaCategory,
+        });
+      }
+    }
+  }, [activeTabId, view, mediaCategory]);
+
   // Listen for browser/phone Back & Forward popstate events
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {

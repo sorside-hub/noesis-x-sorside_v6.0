@@ -14,6 +14,8 @@ interface FloatingActionPillProps {
   setIsTreeSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
   areAllFoldersCollapsed: boolean;
   handleToggleExpandCollapseAll: () => void;
+  areAllTagsCollapsed?: boolean;
+  handleToggleExpandCollapseAllTags?: () => void;
   areAllGroupsCollapsed?: boolean;
   handleToggleExpandCollapseAllGroups?: () => void;
 }
@@ -29,6 +31,8 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
   setIsTreeSearchOpen,
   areAllFoldersCollapsed,
   handleToggleExpandCollapseAll,
+  areAllTagsCollapsed = false,
+  handleToggleExpandCollapseAllTags,
   areAllGroupsCollapsed = false,
   handleToggleExpandCollapseAllGroups,
 }) => {
@@ -91,8 +95,58 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
               </button>
             )}
           </>
+        ) : activeTab === 'tags' ? (
+          /* TAB: TAGS */
+          <>
+            {/* 1. New Note */}
+            <button
+              type="button"
+              title="Catatan Baru"
+              onClick={() => {
+                onCreateNote(null);
+                onCloseMobile();
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
+            >
+              <Plus size={14} className="text-text-link opacity-90" />
+              <span>Catatan</span>
+            </button>
+
+            <div className="w-px h-4 bg-border-default mx-0.5" />
+
+            {/* 2. Search Tags */}
+            <button
+              type="button"
+              title={isTreeSearchOpen ? 'Tutup pencarian' : 'Cari tag'}
+              onClick={() => setIsTreeSearchOpen((prev) => !prev)}
+              className={twMerge(
+                'p-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer',
+                isTreeSearchOpen
+                  ? 'bg-bg-hover text-text-heading ring-1 ring-border-default'
+                  : 'text-text-secondary hover:text-text-heading hover:bg-bg-hover'
+              )}
+            >
+              <Search size={14} className={isTreeSearchOpen ? 'text-text-link' : ''} />
+            </button>
+
+            {/* 3. Expand / Collapse Tags */}
+            {handleToggleExpandCollapseAllTags && (
+              <button
+                type="button"
+                title={areAllTagsCollapsed ? 'Buka Semua Tag' : 'Tutup Semua Tag'}
+                onClick={handleToggleExpandCollapseAllTags}
+                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer group"
+              >
+                {areAllTagsCollapsed ? (
+                  <ChevronsUpDown size={14} className="text-text-link opacity-90 group-hover:opacity-100 transition-opacity" />
+                ) : (
+                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-text-heading transition-colors" />
+                )}
+              </button>
+            )}
+          </>
         ) : (
-          /* TAB: FILES & TAGS */
+          /* TAB: FILES */
           <>
             {/* 1. New Note */}
             <button
@@ -109,24 +163,22 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
             </button>
 
             {/* 2. New Folder (only in files tab) */}
-            {activeTab === 'files' && (
-              <button
-                type="button"
-                title="Folder Baru"
-                onClick={() => onCreateFolder(null)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
-              >
-                <FolderPlus size={14} className="text-text-link opacity-90" />
-                <span>Folder</span>
-              </button>
-            )}
+            <button
+              type="button"
+              title="Folder Baru"
+              onClick={() => onCreateFolder(null)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer"
+            >
+              <FolderPlus size={14} className="text-text-link opacity-90" />
+              <span>Folder</span>
+            </button>
 
             <div className="w-px h-4 bg-border-default mx-0.5" />
 
             {/* 3. Search Toggle */}
             <button
               type="button"
-              title={isTreeSearchOpen ? 'Tutup pencarian' : activeTab === 'tags' ? 'Cari tag' : 'Cari file'}
+              title={isTreeSearchOpen ? 'Tutup pencarian' : 'Cari file'}
               onClick={() => setIsTreeSearchOpen((prev) => !prev)}
               className={twMerge(
                 'p-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer',
@@ -139,20 +191,18 @@ export const FloatingActionPill: React.FC<FloatingActionPillProps> = ({
             </button>
 
             {/* 4. Expand / Collapse Folders (files tab) */}
-            {activeTab === 'files' && (
-              <button
-                type="button"
-                title={areAllFoldersCollapsed ? 'Buka Semua Folder' : 'Tutup Semua Folder'}
-                onClick={handleToggleExpandCollapseAll}
-                className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer group"
-              >
-                {areAllFoldersCollapsed ? (
-                  <ChevronsUpDown size={14} className="text-text-link opacity-90 group-hover:opacity-100 transition-opacity" />
-                ) : (
-                  <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-text-heading transition-colors" />
-                )}
-              </button>
-            )}
+            <button
+              type="button"
+              title={areAllFoldersCollapsed ? 'Buka Semua Folder' : 'Tutup Semua Folder'}
+              onClick={handleToggleExpandCollapseAll}
+              className="p-1.5 rounded-full text-xs font-medium text-text-secondary hover:text-text-heading hover:bg-bg-hover transition-colors cursor-pointer group"
+            >
+              {areAllFoldersCollapsed ? (
+                <ChevronsUpDown size={14} className="text-text-link opacity-90 group-hover:opacity-100 transition-opacity" />
+              ) : (
+                <ChevronsDownUp size={14} className="text-text-secondary group-hover:text-text-heading transition-colors" />
+              )}
+            </button>
           </>
         )}
       </div>

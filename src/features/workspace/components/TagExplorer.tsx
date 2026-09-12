@@ -21,6 +21,8 @@ interface TagExplorerProps {
   activeFileId: string | null;
   onSelectFile: (id: string) => void;
   onCloseMobile: () => void;
+  expandedTags?: Set<string>;
+  setExpandedTags?: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 type TagViewMode = 'tree' | 'flat';
@@ -33,11 +35,16 @@ export const TagExplorer: React.FC<TagExplorerProps> = ({
   activeFileId,
   onSelectFile,
   onCloseMobile,
+  expandedTags: externalExpandedTags,
+  setExpandedTags: externalSetExpandedTags,
 }) => {
   const [viewMode, setViewMode] = useState<TagViewMode>('tree');
   const [sortMode, setSortMode] = useState<TagSortMode>('name');
-  const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
+  const [internalExpandedTags, setInternalExpandedTags] = useState<Set<string>>(new Set());
   const [highlightedTag, setHighlightedTag] = useState<string | null>(null);
+
+  const expandedTags = externalExpandedTags ?? internalExpandedTags;
+  const setExpandedTags = externalSetExpandedTags ?? setInternalExpandedTags;
 
   // Listen for open-tag-in-sidebar event to auto-expand parent nodes, scroll, and highlight tag
   useEffect(() => {
@@ -359,18 +366,6 @@ export const TagExplorer: React.FC<TagExplorerProps> = ({
           >
             {viewMode === 'tree' ? <FolderTree size={12} /> : <ListFilter size={12} />}
           </button>
-
-          {/* Expand / Collapse All (Tree Mode) */}
-          {viewMode === 'tree' && (
-            <button
-              type="button"
-              title={areAllExpanded ? 'Tutup Semua Tag' : 'Buka Semua Tag'}
-              onClick={toggleExpandCollapseAll}
-              className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer"
-            >
-              {areAllExpanded ? <ChevronsDownUp size={12} /> : <ChevronsUpDown size={12} />}
-            </button>
-          )}
         </div>
       </div>
 

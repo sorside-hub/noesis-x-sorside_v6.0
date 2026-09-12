@@ -37,6 +37,8 @@ interface BookmarksExplorerProps {
   onDeleteGroup: (groupId: string) => void;
   isCreatingGroupExternal?: boolean;
   setIsCreatingGroupExternal?: (open: boolean) => void;
+  expandedGroups?: Set<string>;
+  setExpandedGroups?: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 export const BookmarksExplorer: React.FC<BookmarksExplorerProps> = ({
@@ -55,9 +57,13 @@ export const BookmarksExplorer: React.FC<BookmarksExplorerProps> = ({
   onDeleteGroup,
   isCreatingGroupExternal,
   setIsCreatingGroupExternal,
+  expandedGroups: externalExpandedGroups,
+  setExpandedGroups: externalSetExpandedGroups,
 }) => {
   // State for UI interactions
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [internalExpandedGroups, setInternalExpandedGroups] = useState<Set<string>>(new Set());
+  const expandedGroups = externalExpandedGroups ?? internalExpandedGroups;
+  const setExpandedGroups = externalSetExpandedGroups ?? setInternalExpandedGroups;
   const [internalCreatingGroup, setInternalCreatingGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -575,7 +581,7 @@ export const BookmarksExplorer: React.FC<BookmarksExplorerProps> = ({
         />
       )}
 
-      {/* Mini Controls Bar: Bookmark count and Expand/Collapse */}
+      {/* Mini Controls Bar: Bookmark count */}
       <div className="px-2 py-1 flex items-center justify-between text-[11px] font-medium text-text-muted border-b border-border-subtle/50 pb-1.5 mb-1">
         <span className="flex items-center gap-1 text-text-muted">
           <Star size={12} className="text-accent-primary" />
@@ -585,20 +591,6 @@ export const BookmarksExplorer: React.FC<BookmarksExplorerProps> = ({
               : `${bookmarks.length} Bookmark`}
           </span>
         </span>
-
-        <div className="flex items-center gap-1">
-          {/* Expand/Collapse Groups */}
-          {groups.length > 0 && !query && (
-            <button
-              type="button"
-              title={areAllGroupsExpanded ? 'Tutup Semua Grup' : 'Buka Semua Grup'}
-              onClick={toggleExpandCollapseAll}
-              className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors cursor-pointer"
-            >
-              {areAllGroupsExpanded ? <ChevronsDownUp size={12} /> : <ChevronsUpDown size={12} />}
-            </button>
-          )}
-        </div>
       </div>
 
       {/* New Group Input Form */}

@@ -143,8 +143,6 @@ export const Columns = Node.create<ColumnsOptions>({
 
   defining: true,
 
-  isolating: true,
-
   addOptions() {
     return {
       HTMLAttributes: {},

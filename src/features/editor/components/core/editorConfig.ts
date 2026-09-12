@@ -20,6 +20,7 @@ import { AudioExtension } from '../../extensions/AudioExtension';
 import { DocumentExtension } from '../../extensions/DocumentExtension';
 import { Columns, Column } from '../../extensions/ColumnsExtension';
 import { CustomImageExtension } from '../../extensions/CustomImageExtension';
+import { SafeDeleteExtension } from '../../extensions/SafeDeleteExtension';
 import { TextSelection } from '@tiptap/pm/state';
 import Link from '@tiptap/extension-link';
 import { Markdown } from 'tiptap-markdown';
@@ -206,6 +207,7 @@ export const getEditorExtensions = (nodesRef: React.MutableRefObject<any>) => [
   CustomTextAlign.configure({
     types: ['heading', 'paragraph', 'tableCell', 'tableHeader', 'blockquote'],
   }),
+  SafeDeleteExtension,
   Markdown.configure({
     html: true,
     transformPastedText: true,

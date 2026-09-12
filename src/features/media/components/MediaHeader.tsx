@@ -77,15 +77,6 @@ export const MediaHeader: React.FC<MediaHeaderProps> = ({
         <div className="flex items-center flex-wrap gap-2">
           <button
             type="button"
-            onClick={onOpenVoiceMemo}
-            className="px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
-          >
-            <Mic className="w-3.5 h-3.5" />
-            <span>Rekam Memo</span>
-          </button>
-
-          <button
-            type="button"
             onClick={onScanStorage}
             disabled={isScanning || isLoading}
             title="Pindai file di Cloud Storage"

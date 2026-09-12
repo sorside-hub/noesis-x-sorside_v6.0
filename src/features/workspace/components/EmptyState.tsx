@@ -16,7 +16,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onCreateNote, onQuickCap
       
       <div className="relative z-10 flex flex-col items-center w-full max-w-xl">
         {/* CSS Logo for Sophisticated Dark & Editorial Light */}
-        <div className="w-16 h-16 bg-accent-primary rounded-md flex items-center justify-center rotate-45 shadow-[0_0_30px_rgba(197,163,106,0.3)] mb-8">
+        <div className="w-16 h-16 bg-accent-primary rounded-md flex items-center justify-center rotate-45 shadow-md shadow-black/25 mb-8">
           <div className="w-8 h-8 border-2 border-accent-contrast -rotate-45"></div>
         </div>
 
@@ -35,7 +35,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onCreateNote, onQuickCap
             onClick={onCreateNote}
             className="flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer group outline-none"
           >
-            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-[0_0_15px_rgba(197,163,106,0.1)] group-hover:bg-accent-primary/20 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(197,163,106,0.2)] transition-all duration-200 mb-3">
+            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-xs group-hover:bg-accent-primary/15 group-hover:scale-105 group-hover:shadow-sm transition-all duration-200 mb-3">
               <Plus size={20} strokeWidth={2} />
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted group-hover:text-accent-primary transition-colors">
@@ -49,7 +49,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onCreateNote, onQuickCap
             onClick={onQuickCapture || onCreateNote}
             className="flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer group outline-none"
           >
-            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-[0_0_15px_rgba(197,163,106,0.1)] group-hover:bg-accent-primary/20 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(197,163,106,0.2)] transition-all duration-200 mb-3">
+            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-xs group-hover:bg-accent-primary/15 group-hover:scale-105 group-hover:shadow-sm transition-all duration-200 mb-3">
               <Zap size={20} strokeWidth={2} />
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted group-hover:text-accent-primary transition-colors">
@@ -63,7 +63,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onCreateNote, onQuickCap
             onClick={() => openModal('voice-note')}
             className="flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer group outline-none"
           >
-            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-[0_0_15px_rgba(197,163,106,0.1)] group-hover:bg-accent-primary/20 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(197,163,106,0.2)] transition-all duration-200 mb-3">
+            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-xs group-hover:bg-accent-primary/15 group-hover:scale-105 group-hover:shadow-sm transition-all duration-200 mb-3">
               <AudioLines size={20} strokeWidth={2} />
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted group-hover:text-accent-primary transition-colors">
@@ -77,7 +77,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ onCreateNote, onQuickCap
             onClick={() => openModal('voice-memo')}
             className="flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer group outline-none"
           >
-            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-[0_0_15px_rgba(197,163,106,0.1)] group-hover:bg-accent-primary/20 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(197,163,106,0.2)] transition-all duration-200 mb-3">
+            <div className="w-12 h-12 rounded-full border border-accent-primary/30 text-accent-primary bg-accent-primary/5 flex items-center justify-center shadow-xs group-hover:bg-accent-primary/15 group-hover:scale-105 group-hover:shadow-sm transition-all duration-200 mb-3">
               <Mic size={20} strokeWidth={2} />
             </div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-text-muted group-hover:text-accent-primary transition-colors">

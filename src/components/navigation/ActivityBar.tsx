@@ -26,7 +26,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
       <div className="flex flex-col items-center gap-3 w-full px-1.5">
         {/* Noesis Brand Logo */}
         <div 
-          className="w-7 h-7 bg-accent-primary rounded-[4px] flex items-center justify-center rotate-45 shadow-[0_0_12px_rgba(197,163,106,0.25)] my-1 shrink-0 select-none cursor-pointer"
+          className="w-7 h-7 bg-accent-primary rounded-[4px] flex items-center justify-center rotate-45 shadow-xs shadow-black/25 my-1 shrink-0 select-none cursor-pointer"
           onClick={() => onTabChange('vault')}
           title="Noesis Vault"
         >
@@ -63,7 +63,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={handleVaultClick}
           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer ${
             activeTab === 'vault'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >
@@ -77,7 +77,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={() => onTabChange('hub')}
           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer ${
             activeTab === 'hub'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >
@@ -91,7 +91,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={() => onTabChange('chat')}
           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer ${
             activeTab === 'chat'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >
@@ -105,7 +105,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={() => onTabChange('media')}
           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer ${
             activeTab === 'media'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >
@@ -119,7 +119,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={() => onTabChange('sorside')}
           className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer ${
             activeTab === 'sorside'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >
@@ -134,7 +134,7 @@ export const ActivityBar: React.FC<ActivityBarProps> = ({ activeTab, onTabChange
           onClick={() => onTabChange('settings')}
           className={`relative w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-150 cursor-pointer group ${
             activeTab === 'settings'
-              ? 'text-accent-contrast bg-accent-primary shadow-[0_0_15px_rgba(197,163,106,0.2)] font-medium border border-accent-primary/50'
+              ? 'text-accent-contrast bg-accent-primary shadow-xs font-semibold border border-accent-primary/40'
               : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
           }`}
         >

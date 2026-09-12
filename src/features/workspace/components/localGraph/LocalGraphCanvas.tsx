@@ -32,16 +32,22 @@ export const LocalGraphCanvas: React.FC<LocalGraphCanvasProps> = ({
       const x = node.x || 0;
       const y = node.y || 0;
 
+      // Get theme dynamic accent color
+      const accentColor =
+        getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim() || '#C5A36A';
+      const accentSoft =
+        getComputedStyle(document.documentElement).getPropertyValue('--accent-soft').trim() || 'rgba(255, 255, 255, 0.15)';
+
       // Draw Center Node Glow
       if (isCenter) {
         ctx.beginPath();
         ctx.arc(x, y, radius + 4 / Math.sqrt(globalScale), 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'rgba(197, 163, 106, 0.25)';
+        ctx.fillStyle = accentSoft;
         ctx.fill();
 
         ctx.beginPath();
         ctx.arc(x, y, radius + 2 / Math.sqrt(globalScale), 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'rgba(197, 163, 106, 0.4)';
+        ctx.fillStyle = accentSoft;
         ctx.fill();
       }
 
@@ -49,7 +55,7 @@ export const LocalGraphCanvas: React.FC<LocalGraphCanvasProps> = ({
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
       if (isCenter) {
-        ctx.fillStyle = '#C5A36A'; // Primary gold accent
+        ctx.fillStyle = accentColor;
       } else if (isHovered) {
         ctx.fillStyle = '#FFFFFF';
       } else if (node.distance === 1) {

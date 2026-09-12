@@ -48,7 +48,7 @@ export const GraphToolbar: React.FC<GraphToolbarProps> = ({
         onClick={onToggleAnimate}
         className={`p-2 rounded-lg transition-all cursor-pointer ${
           isAnimating
-            ? 'text-accent-contrast bg-accent-primary font-bold shadow-[0_0_12px_rgba(197,163,106,0.5)]'
+            ? 'text-accent-contrast bg-accent-primary font-bold shadow-xs ring-1 ring-accent-primary/40'
             : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
         }`}
         title={isAnimating ? 'Hentikan Animasi' : 'Mulai Animasi'}

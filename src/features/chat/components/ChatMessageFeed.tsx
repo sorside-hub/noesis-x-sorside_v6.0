@@ -214,7 +214,7 @@ export const ChatMessageFeed: React.FC<ChatMessageFeedProps> = ({
 
           <div className="relative z-10 flex flex-col items-center">
             {/* CSS Geometric Diamond Logo */}
-            <div className="w-16 h-16 bg-accent-primary rounded-md flex items-center justify-center rotate-45 shadow-[0_0_30px_rgba(197,163,106,0.3)] mb-6">
+            <div className="w-16 h-16 bg-accent-primary rounded-md flex items-center justify-center rotate-45 shadow-md shadow-black/25 mb-6">
               <div className="w-8 h-8 border-2 border-bg-primary -rotate-45" />
             </div>
 

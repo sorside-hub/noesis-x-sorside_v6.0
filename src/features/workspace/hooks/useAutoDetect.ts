@@ -93,21 +93,27 @@ export function useAutoDetect({
     const result = customResult || autoDetectResult;
     if (!activeNode || !result) return;
 
-    // 1. Update Title if changed
+    // 1. Update Title if changed and not skipped
     if (result.suggestedTitle && result.suggestedTitle !== activeNode.name && updateNodeTitle) {
       updateNodeTitle(activeNode.id, result.suggestedTitle);
     }
 
-    // 2. Update Metadata
-    const cleanTags = Array.isArray(result.tags)
-      ? Array.from(new Set(result.tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)))
-      : [];
+    // 2. Update Metadata selectively
+    const metadataUpdates: Partial<NoteMetadata> = {};
+    if (result.noteType) {
+      metadataUpdates.noteType = result.noteType;
+    }
+    if (result.tags && result.tags.length > 0) {
+      const cleanTags = Array.from(new Set(result.tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean)));
+      metadataUpdates.tags = cleanTags;
+    }
+    if (result.aliases && result.aliases.length > 0) {
+      metadataUpdates.aliases = result.aliases;
+    }
 
-    onUpdateMetadata(activeNode.id, {
-      noteType: result.noteType,
-      tags: cleanTags,
-      aliases: result.aliases,
-    });
+    if (Object.keys(metadataUpdates).length > 0) {
+      onUpdateMetadata(activeNode.id, metadataUpdates);
+    }
 
     // 3. Move/Create Folder
     const decision = result.folderDecision;

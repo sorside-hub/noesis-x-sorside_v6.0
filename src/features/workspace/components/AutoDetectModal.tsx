@@ -28,18 +28,40 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
   const [newFolderName, setNewFolderName] = useState(result.folderDecision?.newFolderName || '');
   const [showLog, setShowLog] = useState(false);
 
+  // Granular section toggles (default all checked)
+  const [applyTitle, setApplyTitle] = useState(true);
+  const [applyNoteType, setApplyNoteType] = useState(true);
+  const [applyFolder, setApplyFolder] = useState(true);
+  const [applyTags, setApplyTags] = useState(true);
+  const [applyAliases, setApplyAliases] = useState(true);
+
+  const handleRemoveTag = (indexToRemove: number) => {
+    setTags((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleRemoveAlias = (indexToRemove: number) => {
+    setAliases((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleConfirm = () => {
-    onApply({
+    const finalResult: AutoDetectResult = {
       ...result,
-      suggestedTitle: title,
-      noteType,
-      tags: tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean),
-      aliases,
-      folderDecision: {
-        ...result.folderDecision,
-        newFolderName: newFolderName.trim() || result.folderDecision?.newFolderName || '',
-      },
-    });
+      suggestedTitle: applyTitle ? (title.trim() || result.suggestedTitle) : '',
+      noteType: applyNoteType ? noteType : '',
+      tags: applyTags ? tags.map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean) : [],
+      aliases: applyAliases ? aliases : [],
+      folderDecision: applyFolder
+        ? {
+            ...result.folderDecision,
+            newFolderName: newFolderName.trim() || result.folderDecision?.newFolderName || '',
+          }
+        : {
+            action: 'existing',
+            reasoning: 'Dilewati oleh pengguna',
+          },
+    };
+
+    onApply(finalResult);
   };
 
   const isExistingFolder = result.folderDecision.action === 'existing';
@@ -113,41 +135,70 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
         ) : (
           <div className="space-y-3.5 text-xs">
           {/* 1. Suggested Title */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-              Judul Catatan
-            </label>
+          <div className={`space-y-1 transition-opacity ${applyTitle ? 'opacity-100' : 'opacity-40'}`}>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                Judul Catatan
+              </label>
+              <input
+                type="checkbox"
+                checked={applyTitle}
+                onChange={(e) => setApplyTitle(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-border-default text-accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-accent-primary"
+                title="Pilih untuk terapkan judul ini"
+              />
+            </div>
             <input
               type="text"
+              disabled={!applyTitle}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-1.5 bg-bg-primary border border-border-default rounded-xl text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-text-muted/40 focus:border-border-hover"
+              className="w-full px-3 py-1.5 bg-bg-primary border border-border-default rounded-xl text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-text-muted/40 focus:border-border-hover disabled:cursor-not-allowed"
             />
           </div>
 
           {/* 2. Note Type */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
-              Note Type
-            </label>
+          <div className={`space-y-1 transition-opacity ${applyNoteType ? 'opacity-100' : 'opacity-40'}`}>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                Note Type
+              </label>
+              <input
+                type="checkbox"
+                checked={applyNoteType}
+                onChange={(e) => setApplyNoteType(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-border-default text-accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-accent-primary"
+                title="Pilih untuk terapkan note type ini"
+              />
+            </div>
             <input
               type="text"
+              disabled={!applyNoteType}
               value={noteType}
               onChange={(e) => setNoteType(e.target.value)}
-              className="w-full px-3 py-1.5 bg-bg-primary border border-border-default rounded-xl text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-text-muted/40 focus:border-border-hover"
+              className="w-full px-3 py-1.5 bg-bg-primary border border-border-default rounded-xl text-xs text-text-primary focus:outline-none focus:ring-1 focus:ring-text-muted/40 focus:border-border-hover disabled:cursor-not-allowed"
             />
           </div>
 
           {/* 3. Target Folder Decision */}
-          <div className="p-3 bg-bg-primary border border-border-default rounded-xl space-y-2">
+          <div className={`p-3 bg-bg-primary border border-border-default rounded-xl space-y-2 transition-opacity ${applyFolder ? 'opacity-100' : 'opacity-40'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-text-heading">
                 <Folder size={14} className="text-text-muted shrink-0" />
                 <span>Rekomendasi Folder</span>
               </div>
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-bg-secondary text-text-muted">
-                {isExistingFolder ? 'Folder Eksisting' : 'Folder Baru'}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-bg-secondary text-text-muted">
+                  {isExistingFolder ? 'Folder Eksisting' : 'Folder Baru'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={applyFolder}
+                  onChange={(e) => setApplyFolder(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded border-border-default text-accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-accent-primary"
+                  title="Pilih untuk memindahkan ke folder ini"
+                />
+              </div>
             </div>
 
             {isExistingFolder ? (
@@ -166,10 +217,11 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
                 </div>
                 <input
                   type="text"
+                  disabled={!applyFolder}
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
                   placeholder="Nama subfolder baru..."
-                  className="w-full px-2.5 py-1.5 bg-bg-surface border border-accent-primary/40 focus:border-accent-primary rounded-lg text-xs font-semibold text-text-primary outline-none transition-colors"
+                  className="w-full px-2.5 py-1.5 bg-bg-surface border border-accent-primary/40 focus:border-accent-primary rounded-lg text-xs font-semibold text-text-primary outline-none transition-colors disabled:cursor-not-allowed"
                 />
               </div>
             )}
@@ -180,14 +232,33 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
           </div>
 
           {/* 4. Tags */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1">
-              <Tag size={11} /> Tags
-            </label>
+          <div className={`space-y-1 transition-opacity ${applyTags ? 'opacity-100' : 'opacity-40'}`}>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1">
+                <Tag size={11} /> Tags
+              </label>
+              <input
+                type="checkbox"
+                checked={applyTags}
+                onChange={(e) => setApplyTags(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-border-default text-accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-accent-primary"
+                title="Pilih untuk menerapkan tags"
+              />
+            </div>
             <div className="flex flex-wrap gap-1">
               {tags.map((t, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-bg-hover text-text-primary border border-border-subtle text-[11px] font-medium">
-                  #{t}
+                <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-bg-hover text-text-primary border border-border-subtle text-[11px] font-medium">
+                  <span>#{t}</span>
+                  {applyTags && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(idx)}
+                      className="text-text-muted hover:text-text-primary cursor-pointer p-0.5 -mr-0.5 rounded transition-colors"
+                      title={`Hapus #${t}`}
+                    >
+                      <X size={11} />
+                    </button>
+                  )}
                 </span>
               ))}
               {tags.length === 0 && <span className="text-text-muted text-[11px] italic">Tidak ada tags</span>}
@@ -195,14 +266,33 @@ export const AutoDetectModal: React.FC<AutoDetectModalProps> = ({
           </div>
 
           {/* 5. Aliases */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1">
-              <Layers size={11} /> Aliases
-            </label>
+          <div className={`space-y-1 transition-opacity ${applyAliases ? 'opacity-100' : 'opacity-40'}`}>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-semibold text-text-muted uppercase tracking-wider flex items-center gap-1">
+                <Layers size={11} /> Aliases
+              </label>
+              <input
+                type="checkbox"
+                checked={applyAliases}
+                onChange={(e) => setApplyAliases(e.target.checked)}
+                className="w-3.5 h-3.5 rounded border-border-default text-accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-accent-primary"
+                title="Pilih untuk menerapkan aliases"
+              />
+            </div>
             <div className="flex flex-wrap gap-1">
               {aliases.map((a, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded-md bg-bg-hover text-text-secondary border border-border-subtle text-[11px]">
-                  {a}
+                <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-bg-hover text-text-secondary border border-border-subtle text-[11px]">
+                  <span>{a}</span>
+                  {applyAliases && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAlias(idx)}
+                      className="text-text-muted hover:text-text-primary cursor-pointer p-0.5 -mr-0.5 rounded transition-colors"
+                      title={`Hapus ${a}`}
+                    >
+                      <X size={11} />
+                    </button>
+                  )}
                 </span>
               ))}
               {aliases.length === 0 && <span className="text-text-muted text-[11px] italic">Tidak ada alias</span>}

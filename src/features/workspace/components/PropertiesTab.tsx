@@ -120,6 +120,8 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
           >
             <option value="">-</option>
             <option value="Inbox">Inbox</option>
+            <option value="Inbox (Refine)">Inbox (Refine)</option>
+            <option value="Inbox (Keeper)">Inbox (Keeper)</option>
             <option value="Idea">Idea</option>
             <option value="Draft">Draft</option>
             <option value="In Progress">In Progress</option>

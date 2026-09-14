@@ -237,6 +237,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({ vaultState: externalVaul
             openBookmarkModal(activeNode.id);
           }
         }}
+        onUpdateMetadata={updateNoteMetadata}
       />
 
       {/* 4. DESKTOP RIGHT SIDEBAR */}

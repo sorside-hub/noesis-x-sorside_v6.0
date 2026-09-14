@@ -1,6 +1,6 @@
 import { FileNode } from '../../types/vault';
 
-export type HubSubView = 'table' | 'board' | 'concepts' | 'graph';
+export type HubSubView = 'inbox' | 'table' | 'board' | 'concepts' | 'graph';
 
 export interface HubFilterState {
   searchQuery: string;

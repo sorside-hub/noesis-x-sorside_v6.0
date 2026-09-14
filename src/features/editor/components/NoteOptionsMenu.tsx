@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MoreHorizontal, FolderInput, Trash2, Star, StarOff, FileDown, Globe } from 'lucide-react';
+import { MoreHorizontal, FolderInput, Trash2, Star, StarOff, FileDown, Globe, Sparkles } from 'lucide-react';
 import { twMerge } from 'tailwind-merge';
 import { FileNode } from '../../../types/vault';
 import { ExportNoteModal } from '../../../components/modals/ExportNoteModal';
+import { SingleNoteTriageModal } from './SingleNoteTriageModal';
 import { useNavigation } from '../../../context/NavigationContext';
+import { TriageResult } from '../../../api-core/inboxTriageHandler';
+import { getAllLocalKeyOverrides } from '../../../lib/ai/keyManager';
 
 interface NoteOptionsMenuProps {
   node?: FileNode | null;
@@ -11,6 +14,7 @@ interface NoteOptionsMenuProps {
   onDeleteNote: () => void;
   isBookmarked?: boolean;
   onToggleBookmark?: () => void;
+  onUpdateMetadata?: (nodeId: string, metadata: Partial<FileNode['metadata']>) => void;
   variant?: 'inline' | 'floating';
   className?: string;
 }
@@ -21,13 +25,78 @@ export const NoteOptionsMenu: React.FC<NoteOptionsMenuProps> = ({
   onDeleteNote,
   isBookmarked = false,
   onToggleBookmark,
+  onUpdateMetadata,
   variant = 'inline',
   className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isTriageModalOpen, setIsTriageModalOpen] = useState(false);
+  const [isTriageLoading, setIsTriageLoading] = useState(false);
+  const [triageResult, setTriageResult] = useState<TriageResult | null>(null);
+  const [triageError, setTriageError] = useState<string | null>(null);
+
   const menuRef = useRef<HTMLDivElement>(null);
   const navigation = useNavigation();
+
+  // Check if note is strictly in Inbox status
+  const isInboxStatus = (() => {
+    if (!node) return false;
+    const st = (node.metadata?.status || '').trim().toLowerCase();
+    return st === 'inbox' || st === 'inbox (unsorted)' || st === 'unsorted' || st === 'inbox/unsorted';
+  })();
+
+  const handleTriggerTriage = async () => {
+    if (!node) return;
+    setIsOpen(false);
+    setIsTriageModalOpen(true);
+    setIsTriageLoading(true);
+    setTriageResult(null);
+    setTriageError(null);
+
+    try {
+      const customKeys = getAllLocalKeyOverrides();
+      const res = await fetch('/api/inbox/triage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          notes: [
+            {
+              id: node.id,
+              title: node.name,
+              content: node.content || '',
+            },
+          ],
+          customKeys,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Gagal menganalisis catatan');
+      }
+
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        setTriageResult(data.results[0]);
+      } else {
+        throw new Error('Tidak ada respon kurasi dari AI');
+      }
+    } catch (err: any) {
+      console.error('[NoteOptionsMenu] Triage error:', err);
+      setTriageError(err.message || 'Terjadi kesalahan');
+    } finally {
+      setIsTriageLoading(false);
+    }
+  };
+
+  const handleApplyVerdict = (verdict: 'keeper' | 'refine') => {
+    if (!node || !onUpdateMetadata) return;
+    const targetStatus = verdict === 'keeper' ? 'Inbox (Keeper)' : 'Inbox (Refine)';
+    onUpdateMetadata(node.id, {
+      ...node.metadata,
+      status: targetStatus,
+    });
+  };
 
   // Close dropdown on outside click or escape
   useEffect(() => {
@@ -107,6 +176,18 @@ export const NoteOptionsMenu: React.FC<NoteOptionsMenuProps> = ({
                 : 'right-0 top-full mt-1.5'
             )}
           >
+            {/* AI Triage Action - Strictly available when note is in Inbox status */}
+            {isInboxStatus && (
+              <button
+                type="button"
+                onClick={handleTriggerTriage}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-text-primary hover:bg-accent-primary/10 hover:text-accent-primary transition-colors cursor-pointer text-left"
+              >
+                <Sparkles size={14} className="text-accent-primary shrink-0" />
+                <span>AI Triage</span>
+              </button>
+            )}
+
             {/* Toggle Bookmark Action */}
             {onToggleBookmark && (
               <button
@@ -189,6 +270,19 @@ export const NoteOptionsMenu: React.FC<NoteOptionsMenuProps> = ({
           node={node}
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
+        />
+      )}
+
+      {/* Single Note AI Triage Modal Dialog */}
+      {node && (
+        <SingleNoteTriageModal
+          isOpen={isTriageModalOpen}
+          onClose={() => setIsTriageModalOpen(false)}
+          noteTitle={node.name}
+          isLoading={isTriageLoading}
+          result={triageResult}
+          error={triageError}
+          onApply={handleApplyVerdict}
         />
       )}
     </>

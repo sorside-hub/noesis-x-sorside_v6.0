@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
+  Inbox,
   Table2, 
   SquareKanban, 
   Waypoints, 
@@ -23,11 +24,13 @@ import { HubSubView } from '../types';
 import { useHubData } from '../hooks/useHubData';
 import { TableView } from './views/TableView';
 import { BoardView, getBoardColumns, BOARD_COLUMNS_STORAGE_KEY } from './views/BoardView';
+import { InboxTriageView } from './views/InboxTriageView';
 import { ConceptsView } from './views/ConceptsView';
 
 import { GraphView } from './views/GraphView';
 import { HubFilterBar, DynamicFilter } from './HubFilterBar';
 import { isSameOrDescendantTag } from '../../workspace/utils/tagUtils';
+import { classifyNoteTriageStatus } from '../utils/triageUtils';
 
 interface HubViewProps {
   vault: VaultData | null;
@@ -35,8 +38,9 @@ interface HubViewProps {
 }
 
 export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
-  const [activeSubView, setActiveSubView] = useState<HubSubView>('table');
+  const [activeSubView, setActiveSubView] = useState<HubSubView>('inbox');
   const [tabSearchQueries, setTabSearchQueries] = useState<Record<string, string>>({
+    inbox: '',
     table: '',
     board: '',
     concepts: '',
@@ -44,6 +48,7 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
   });
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [tabFilters, setTabFilters] = useState<Record<string, DynamicFilter[]>>({
+    inbox: [],
     table: [],
     board: [],
     concepts: [],
@@ -202,14 +207,29 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
       }
     });
 
+    const inboxFolderNode = Object.values(vault?.nodes || {}).find(
+      (n) =>
+        n.type === 'folder' &&
+        (n.name.toLowerCase() === '00-inbox' ||
+          n.name.toLowerCase() === '00 - inbox' ||
+          n.name.toLowerCase() === 'inbox')
+    );
+    const inboxFolderId = inboxFolderNode?.id || null;
+
+    const inboxCount = allFiles.filter(
+      (f) => classifyNoteTriageStatus(f, inboxFolderId) !== null
+    ).length;
+
     return {
       totalNotes: allFiles.length,
       totalTags: tagCount.size,
-      statusCounts
+      statusCounts,
+      inboxCount
     };
-  }, [allFiles]);
+  }, [allFiles, vault]);
 
-  const navItems: { id: HubSubView; label: string; icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; category: 'metadata' | 'discovery'; badge?: string }[] = [
+  const navItems: { id: HubSubView; label: string; icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>; category: 'metadata' | 'discovery' }[] = [
+    { id: 'inbox', label: 'Inbox Triage', icon: Inbox, category: 'metadata' },
     { id: 'table', label: 'Table Matrix', icon: Table2, category: 'metadata' },
     { id: 'board', label: 'Board / Kanban', icon: SquareKanban, category: 'metadata' },
     { id: 'concepts', label: 'Peta Konsep', icon: Waypoints, category: 'metadata' },
@@ -288,11 +308,6 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
                       <Icon size={15} strokeWidth={1.8} className="text-text-muted" />
                       <span>{item.label}</span>
                     </div>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-medium rounded-full bg-bg-hover text-text-muted border border-border-subtle">
-                        {item.badge}
-                      </span>
-                    )}
                   </button>
                 );
               })}
@@ -461,7 +476,7 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
                 type="button"
                 title={item.label}
                 onClick={() => setActiveSubView(item.id)}
-                className={`flex-1 flex items-center justify-center py-2 rounded-lg transition-all duration-150 ${
+                className={`relative flex-1 flex items-center justify-center py-2 rounded-lg transition-all duration-150 ${
                   isActive
                     ? 'bg-accent-primary text-accent-contrast shadow-xs'
                     : 'bg-bg-hover text-text-muted hover:text-text-primary'
@@ -474,7 +489,7 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
         </div>
 
         {/* Independent Tab Filter Bar */}
-        {activeSubView !== 'graph' && (
+        {activeSubView !== 'graph' && activeSubView !== 'inbox' && (
           <div className="px-4 lg:px-6 py-2 border-b border-border-default bg-bg-surface/30">
             <HubFilterBar 
               notes={allFiles} 
@@ -485,12 +500,22 @@ export const HubView: React.FC<HubViewProps> = ({ vault, vaultState }) => {
         )}
 
         {/* Sub-View Content Canvas Container */}
-        <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col ${activeSubView === 'graph' ? 'p-2 lg:p-3' : 'p-4 lg:p-6'}`}>
+        <div className={`flex-1 ${activeSubView === 'graph' || activeSubView === 'inbox' || activeSubView === 'board' ? 'overflow-hidden p-2 lg:p-4' : 'overflow-y-auto p-4 lg:p-6'} custom-scrollbar flex flex-col`}>
           {/* Active View Container */}
-          <div className={`w-full flex-1 flex flex-col ${activeSubView === 'graph' ? 'h-full' : 'max-w-7xl mx-auto space-y-4'}`}>
+          <div className={`w-full flex-1 flex flex-col ${activeSubView === 'graph' || activeSubView === 'inbox' || activeSubView === 'board' ? 'h-full min-h-0' : 'max-w-7xl mx-auto space-y-4'}`}>
 
             {/* Active Sub-View Rendering */}
-            <div className={`w-full flex-1 flex flex-col`}>
+            <div className={`w-full flex-1 flex flex-col ${activeSubView === 'graph' || activeSubView === 'inbox' || activeSubView === 'board' ? 'h-full min-h-0' : ''}`}>
+              {activeSubView === 'inbox' && (
+                <InboxTriageView
+                  notes={filteredNotes}
+                  vault={vault}
+                  onOpenNote={navigateToNote}
+                  onUpdateNoteProperty={(id, prop, val) => vaultState?.updateNoteMetadata(id, { [prop]: val })}
+                  onMoveNote={(id, targetFolderId) => vaultState?.moveNode(id, targetFolderId)}
+                  onDeleteNote={(id) => vaultState?.deleteNode(id)}
+                />
+              )}
               {activeSubView === 'table' && (
                 <TableView notes={filteredNotes} filters={tabFilters['table'] || []} onOpenNote={navigateToNote} />
               )}

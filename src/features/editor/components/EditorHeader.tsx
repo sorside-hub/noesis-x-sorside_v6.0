@@ -16,6 +16,7 @@ interface EditorHeaderProps {
   onDeleteNote?: () => void;
   isBookmarked?: boolean;
   onToggleBookmark?: () => void;
+  onUpdateMetadata?: (nodeId: string, metadata: Partial<FileNode['metadata']>) => void;
   isLocked?: boolean;
   onToggleLock?: () => void;
 }
@@ -32,6 +33,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
   onDeleteNote,
   isBookmarked,
   onToggleBookmark,
+  onUpdateMetadata,
   isLocked = false,
   onToggleLock,
 }) => {
@@ -208,6 +210,7 @@ export const EditorHeader: React.FC<EditorHeaderProps> = ({
               onDeleteNote={onDeleteNote}
               isBookmarked={isBookmarked}
               onToggleBookmark={onToggleBookmark}
+              onUpdateMetadata={onUpdateMetadata}
             />
           </div>
         )}

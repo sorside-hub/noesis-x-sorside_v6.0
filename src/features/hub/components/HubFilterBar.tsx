@@ -124,7 +124,7 @@ export const HubFilterBar: React.FC<HubFilterBarProps> = ({ notes, filters, onCh
 
     // Provide sensible defaults for status if none found in notes
     if (newProp === 'status' && values.size === 0) {
-      ['Inbox', 'Idea', 'Draft', 'In Progress', 'Completed', 'Archived'].forEach(s => values.add(s));
+      ['Inbox', 'Inbox (Refine)', 'Inbox (Keeper)', 'Idea', 'Draft', 'In Progress', 'Completed', 'Archived'].forEach(s => values.add(s));
     }
 
     return Array.from(values).sort();

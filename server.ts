@@ -12,6 +12,7 @@ import { handleEditorAction, EditorActionType } from './src/api-core/editorActio
 import { handleChatGenerate, handleChatStream, ChatHistoryMessage } from './src/api-core/chatHandler';
 import { handleSummarizeChatMemory } from './src/api-core/chatMemoryHandler';
 import { handleVoiceToNote } from './src/api-core/voiceHandler';
+import { handleInboxTriage } from './src/api-core/inboxTriageHandler';
 
 // Load environment variables from .env
 dotenv.config();
@@ -145,6 +146,21 @@ async function startServer() {
       res.json(result);
     } catch (error: unknown) {
       console.error('[API /api/analyze Error]:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal Server Error' });
+    }
+  });
+
+  // POST /api/inbox/triage - Smart AI Triage for Inbox Notes
+  app.post('/api/inbox/triage', async (req, res) => {
+    try {
+      const { notes, customKeys } = req.body;
+      if (!Array.isArray(notes) || notes.length === 0) {
+        return res.status(400).json({ error: 'notes array is required' });
+      }
+      const result = await handleInboxTriage(notes, customKeys, process.env);
+      res.json(result);
+    } catch (error: unknown) {
+      console.error('[API /api/inbox/triage Error]:', error);
       res.status(500).json({ error: error instanceof Error ? error.message : 'Internal Server Error' });
     }
   });

@@ -45,7 +45,7 @@ export const getBoardColumns = (notes: EnrichedNoteItem[]) => {
   const customStatuses = new Set<string>();
   notes.forEach(note => {
     const key = note.status;
-    if (!key || key === 'Inbox' || key === 'NONE') return;
+    if (!key || key.startsWith('Inbox') || key === 'NONE') return;
     if (!STATUS_COLUMNS.includes(key)) {
       customStatuses.add(key);
     }
@@ -119,9 +119,9 @@ export const BoardView: React.FC<BoardViewProps> = ({
     
     localNotes.forEach(note => {
       const key = note.status;
-      if (key && key !== 'Inbox' && key !== 'NONE' && groups[key]) {
+      if (key && !key.startsWith('Inbox') && key !== 'NONE' && groups[key]) {
         groups[key].push(note);
-      } else if (!key || key === 'Inbox' || key === 'NONE') {
+      } else if (!key || key.startsWith('Inbox') || key === 'NONE') {
          // Not showing inbox/none in board unless we want an "Inbox" column
       } else {
         if (!groups[key]) groups[key] = [];

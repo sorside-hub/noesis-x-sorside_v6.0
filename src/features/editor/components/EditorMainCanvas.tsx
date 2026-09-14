@@ -38,6 +38,7 @@ interface EditorMainCanvasProps {
   openInNewTab: (id: string) => void;
   isBookmarked?: boolean;
   onToggleBookmark?: () => void;
+  onUpdateMetadata?: (nodeId: string, metadata: Partial<FileNode['metadata']>) => void;
 }
 
 export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
@@ -64,6 +65,7 @@ export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
   openInNewTab,
   isBookmarked,
   onToggleBookmark,
+  onUpdateMetadata,
 }) => {
   const [tiptapEditor, setTiptapEditor] = useState<Editor | null>(null);
   const [semitonesOffset, setSemitonesOffset] = useState<number>(0);
@@ -151,6 +153,7 @@ export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
         onDeleteNote={handleOpenDeleteModal}
         isBookmarked={isBookmarked}
         onToggleBookmark={onToggleBookmark}
+        onUpdateMetadata={onUpdateMetadata}
         isLocked={isLocked}
         onToggleLock={handleToggleLock}
       />

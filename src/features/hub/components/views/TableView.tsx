@@ -68,6 +68,8 @@ export const TableView: React.FC<TableViewProps> = ({ notes, filters = [], onOpe
           val === 'Completed' ? 'bg-status-success-bg text-status-success border-status-success-border' :
           val === 'In Progress' ? 'bg-status-info-bg text-status-info border-status-info-border' :
           val === 'Inbox' ? 'bg-status-warning-bg text-status-warning border-status-warning-border' :
+          val === 'Inbox (Refine)' ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' :
+          val === 'Inbox (Keeper)' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' :
           'bg-bg-hover text-text-muted border-border-subtle'
         }`}>
           {String(val)}

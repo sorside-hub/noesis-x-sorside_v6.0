@@ -1,28 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { VaultData, FileNode } from '../../../types/vault';
 
 interface UseFolderTreeOptions {
   vault: VaultData;
-  activeFileId: string | null;
+  activeFileId?: string | null;
 }
 
-export function useFolderTree({ vault, activeFileId }: UseFolderTreeOptions) {
-  // Folders are collapsed by default ({}) unless explicitly expanded
+export function useFolderTree({ vault }: UseFolderTreeOptions) {
+  // Folders are collapsed by default ({}) on app launch unless explicitly expanded by the user during the session
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
-
-  // Auto-expand ancestor folders of the active note
-  useEffect(() => {
-    if (!activeFileId) return;
-    let currNode = vault.nodes[activeFileId];
-    const toExpand: Record<string, boolean> = {};
-    while (currNode && currNode.parentId) {
-      toExpand[currNode.parentId] = true;
-      currNode = vault.nodes[currNode.parentId];
-    }
-    if (Object.keys(toExpand).length > 0) {
-      setExpandedFolders((prev) => ({ ...prev, ...toExpand }));
-    }
-  }, [activeFileId, vault.nodes]);
 
   const toggleFolder = (folderId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();

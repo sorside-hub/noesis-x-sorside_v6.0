@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Folder,
   ChevronDown,
+  ChevronRight,
   Sliders,
   Sparkles,
 } from 'lucide-react';
@@ -83,9 +84,20 @@ export const PropertiesTab: React.FC<PropertiesTabProps> = ({
           <h2 className="text-base font-bold text-text-heading tracking-tight truncate">
             {activeNode.name}
           </h2>
-          <div className="flex items-center gap-1.5 text-xs text-text-muted">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted flex-wrap">
             <Folder size={12} className="text-text-muted shrink-0" />
-            <span className="truncate">{folderName}</span>
+            <div className="flex items-center gap-1 flex-wrap font-medium">
+              {folderName.split(' / ').map((segment, idx, arr) => (
+                <React.Fragment key={idx}>
+                  <span className={idx === arr.length - 1 ? 'text-text-secondary' : 'text-text-muted'}>
+                    {segment}
+                  </span>
+                  {idx < arr.length - 1 && (
+                    <ChevronRight size={11} className="text-text-muted/60 shrink-0" />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
       </div>

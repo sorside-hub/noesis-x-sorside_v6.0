@@ -59,7 +59,7 @@ export const FileTreeItem: React.FC<FileTreeItemProps> = ({
         }
       }}
       className={twMerge(
-        'group relative flex items-center justify-between py-1.5 px-2 rounded-lg text-xs font-medium cursor-pointer transition-all duration-150 select-none touch-none',
+        'group relative flex items-center justify-between py-1.5 px-2 rounded-lg text-xs font-medium cursor-pointer transition-all duration-150 select-none touch-manipulation',
         isSelected
           ? 'bg-bg-hover border-l-2 border-accent-primary text-accent-primary font-medium shadow-2xs rounded-l-none rounded-r-sm'
           : 'text-text-secondary hover:text-text-primary hover:bg-bg-hover',

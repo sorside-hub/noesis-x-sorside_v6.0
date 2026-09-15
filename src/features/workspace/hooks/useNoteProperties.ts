@@ -12,12 +12,24 @@ export function useNoteProperties({
   activeNode,
   onUpdateMetadata,
 }: UseNotePropertiesOptions) {
-  // Folder Path calculation
-  const folderName = useMemo(() => {
-    if (!activeNode || !activeNode.parentId) return 'Root Vault';
-    const parent = vault.nodes[activeNode.parentId];
-    return parent ? parent.name : 'Root Vault';
+  // Folder Hierarchy & Breadcrumbs calculation (e.g. 01-Pengetahuan / Musik)
+  const folderHierarchy = useMemo(() => {
+    if (!activeNode || !activeNode.parentId) return ['Root Vault'];
+    const segments: string[] = [];
+    let currParentId: string | null = activeNode.parentId;
+
+    while (currParentId && vault.nodes[currParentId]) {
+      const parentNode = vault.nodes[currParentId];
+      segments.unshift(parentNode.name);
+      currParentId = parentNode.parentId;
+    }
+
+    return segments.length > 0 ? segments : ['Root Vault'];
   }, [activeNode, vault.nodes]);
+
+  const folderName = useMemo(() => {
+    return folderHierarchy.join(' / ');
+  }, [folderHierarchy]);
 
   // Document statistics calculation
   const stats = useMemo(() => {

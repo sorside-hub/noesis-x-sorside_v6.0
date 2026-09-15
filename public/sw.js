@@ -69,3 +69,29 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+// PWA Notification Click Event Listener
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const noteId = event.notification.data?.noteId;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If there's an open window, focus it and post a message to open the note
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.focus();
+          if (noteId) {
+            client.postMessage({ type: 'NAVIGATE_TO_NOTE', noteId });
+          }
+          return;
+        }
+      }
+      // If no window is open, open a new one
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(noteId ? `/?noteId=${noteId}` : '/');
+      }
+    })
+  );
+});
+

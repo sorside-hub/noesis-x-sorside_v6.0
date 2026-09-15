@@ -20,6 +20,7 @@ import { AudioExtension } from '../../extensions/AudioExtension';
 import { DocumentExtension } from '../../extensions/DocumentExtension';
 import { Columns, Column } from '../../extensions/ColumnsExtension';
 import { CustomImageExtension } from '../../extensions/CustomImageExtension';
+import { ReminderExtension } from '../../extensions/ReminderExtension';
 import { SafeDeleteExtension } from '../../extensions/SafeDeleteExtension';
 import { TextSelection } from '@tiptap/pm/state';
 import Link from '@tiptap/extension-link';
@@ -166,6 +167,7 @@ export const getEditorExtensions = (nodesRef: React.MutableRefObject<any>) => [
     getNodes: () => nodesRef.current,
   }),
   TagExtension,
+  ReminderExtension,
   ChordExtension,
   MarkdownHighlight.configure({
     multicolor: true,
@@ -292,6 +294,15 @@ export const getEditorProps = (
         }
       }
 
+      // Handle Reminder Widget Click
+      const reminderEl = target.closest('.inline-reminder-widget, [data-reminder-trigger], .inline-reminder-chip');
+      if (reminderEl) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
+        return true;
+      }
+
       // Handle Tag Click on Desktop (Ctrl/Cmd + Click or locked/read-only mode)
       const tagEl = target.closest('.inline-tag, [data-tag]');
       if (tagEl) {
@@ -356,6 +367,15 @@ export const getEditorProps = (
           }, 50);
           return true;
         }
+      }
+
+      // Handle Reminder Widget Touch
+      const reminderEl = target.closest('.inline-reminder-widget, [data-reminder-trigger], .inline-reminder-chip');
+      if (reminderEl) {
+        event.preventDefault();
+        event.stopPropagation();
+        window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
+        return true;
       }
 
       // Record touch start state for inline tag

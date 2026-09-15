@@ -309,6 +309,9 @@ export const useAutocomplete = (
       } else if (cmd.id === 'document') {
         editor.chain().focus().deleteRange({ from, to }).run();
         window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'document' }));
+      } else if (cmd.id === 'remind') {
+        editor.chain().focus().deleteRange({ from, to }).run();
+        window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
       } else {
         const result = cmd.action();
         if (result.text) {

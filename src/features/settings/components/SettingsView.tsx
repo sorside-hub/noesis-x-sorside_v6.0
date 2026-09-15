@@ -18,8 +18,10 @@ import {
 import { VaultData, FileNode } from '../../../types/vault';
 import { ApiKeyStatusSection } from './ApiKeyStatusSection';
 import { SupabaseUnifiedCard } from './SupabaseUnifiedCard';
+import { NotificationSettingsCard } from './NotificationSettingsCard';
 import { exportVaultToJSON, importVaultFromJSON } from '../../../lib/storage';
 import { useTheme, ThemeMode } from '../../../hooks/useTheme';
+
 
 interface SettingsViewProps {
   vault: VaultData;
@@ -215,7 +217,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
           <SupabaseUnifiedCard />
         </section>
 
+        {/* 2.5 NOTIFIKASI PWA */}
+        <section className="space-y-2.5">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider px-1 flex items-center gap-2">
+            <CheckCircle2 size={14} className="text-accent-primary" /> 
+            Notifikasi & Pengingat
+          </h2>
+          <NotificationSettingsCard />
+        </section>
+
         {/* 3. API KEYS & FAILOVER */}
+
         <section className="space-y-2.5">
           <ApiKeyStatusSection />
         </section>

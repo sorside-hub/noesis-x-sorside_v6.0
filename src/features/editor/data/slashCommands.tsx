@@ -27,7 +27,8 @@ import {
   Tag,
   Image as ImageIcon,
   Mic,
-  FileText
+  FileText,
+  Bell
 } from 'lucide-react';
 
 export interface SlashCommand {
@@ -321,6 +322,15 @@ export const SLASH_COMMANDS: SlashCommand[] = [
     keywords: ['link', 'wikilink', 'page', 'note', '[[', 'internal'],
     icon: <Link className="w-4 h-4 text-accent-primary" />,
     action: () => ({ text: '[[]]', cursorOffset: 2 }),
+  },
+  {
+    id: 'remind',
+    title: 'Set Pengingat (Reminder)',
+    description: 'Pasang alarm/pengingat waktu untuk tugas atau catatan',
+    category: 'Inserts',
+    keywords: ['remind', 'reminder', 'pengingat', 'alarm', 'jadwal', 'waktu', 'due', 'date', 'deadline', 'bell', 'clock', '⏰'],
+    icon: <Bell className="w-4 h-4 text-amber-500" />,
+    action: () => ({ text: '' }),
   },
   {
     id: 'date',

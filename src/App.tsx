@@ -14,10 +14,13 @@ import { NavigationProvider, useNavigation } from './context/NavigationContext';
 import { VoiceNoteModal } from './features/voice/components/VoiceNoteModal';
 import { VoiceMemoModal } from './features/voice/components/VoiceMemoModal';
 import { mediaGC } from './lib/mediaGarbageCollector';
+import { reminderService } from './lib/reminder/reminderService';
 import { useEffect } from 'react';
 
 function AppContent({ vaultState }: { vaultState: ReturnType<typeof useVault> }) {
-  // Background Media GC Interval (runs every 1 minute to check for expired queued deletions)
+  const { view, navigateView, navigateToNote } = useNavigation();
+
+  // Background Media GC & Reminder Scheduler
   useEffect(() => {
     mediaGC.processQueue();
     mediaGC.emptyOldTrash();
@@ -28,7 +31,37 @@ function AppContent({ vaultState }: { vaultState: ReturnType<typeof useVault> })
     return () => clearInterval(interval);
   }, []);
 
-  const { view, navigateView, navigateToNote } = useNavigation();
+  // Initialize reminder service navigation callback and scheduler
+  useEffect(() => {
+    reminderService.setNavigateCallback((noteId: string) => {
+      navigateToNote(noteId);
+      navigateView('vault');
+    });
+
+    if (vaultState.vault?.nodes) {
+      reminderService.startScheduler(() => vaultState.vault?.nodes || {});
+    }
+
+    return () => {
+      reminderService.stopScheduler();
+    };
+  }, [vaultState.vault?.nodes, navigateToNote, navigateView]);
+
+  // Listen for service worker notification click postMessage
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'NAVIGATE_TO_NOTE' && event.data?.noteId) {
+        navigateToNote(event.data.noteId);
+        navigateView('vault');
+      }
+    };
+
+    navigator.serviceWorker.addEventListener('message', handleMessage);
+    return () => navigator.serviceWorker.removeEventListener('message', handleMessage);
+  }, [navigateToNote, navigateView]);
+
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-bg-primary text-text-primary relative flex flex-row font-sans">

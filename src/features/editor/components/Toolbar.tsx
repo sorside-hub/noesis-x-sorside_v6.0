@@ -9,6 +9,7 @@ import { TableControls } from './toolbar/TableControls';
 import { ColumnControls } from './toolbar/ColumnControls';
 import { ImageControls } from './toolbar/ImageControls';
 import { LinkModal } from './toolbar/LinkModal';
+import { ReminderModal } from './toolbar/ReminderModal';
 import { ToolbarSettingsModal } from './toolbar/ToolbarSettingsModal';
 import { 
   getToolbarItems, 
@@ -39,6 +40,7 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
   const [isAudioModalOpen, setIsAudioModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   
   // Passed to LinkModal as initial state
   const [initialLinkUrl, setInitialLinkUrl] = useState('');
@@ -121,6 +123,7 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
       else if (detail === 'audio') setIsAudioModalOpen(true);
       else if (detail === 'document') setIsDocumentModalOpen(true);
       else if (detail === 'link') handleOpenLinkModal();
+      else if (detail === 'remind') handleOpenReminderModal();
     };
 
     window.addEventListener('noesis:open-modal', handleOpenModalEvent);
@@ -147,6 +150,13 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
       setInitialLinkUrl('');
       setIsLinkModalOpen(true);
     }
+  };
+
+  const handleOpenReminderModal = () => {
+    if (!editor) return;
+    const { from, to, empty } = editor.state.selection;
+    savedSelectionRef.current = { from, to, empty };
+    setIsReminderModalOpen(true);
   };
 
   // Track editor focus - strictly for the note editor area (.ProseMirror / .tiptap)
@@ -249,7 +259,8 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
     handleOpenLinkModal, 
     () => setIsAudioModalOpen(true), 
     () => setIsImageModalOpen(true),
-    () => setIsDocumentModalOpen(true)
+    () => setIsDocumentModalOpen(true),
+    handleOpenReminderModal
   );
 
   const handleUpdateToolbarPreferences = (newOrder: string[], newHidden: string[]) => {
@@ -294,7 +305,7 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
   };
 
   const isToolbarStripVisible = !isMobile || (isFocused && isKeyboardOpen);
-  const shouldRenderComponent = isToolbarStripVisible || isLinkModalOpen || isAudioModalOpen || isImageModalOpen || isDocumentModalOpen || isSettingsModalOpen;
+  const shouldRenderComponent = isToolbarStripVisible || isLinkModalOpen || isAudioModalOpen || isImageModalOpen || isDocumentModalOpen || isReminderModalOpen || isSettingsModalOpen;
 
   if (!shouldRenderComponent) {
     return null;
@@ -385,6 +396,13 @@ export const Toolbar = ({ editor }: ToolbarProps) => {
         isOpen={isDocumentModalOpen}
         onClose={() => setIsDocumentModalOpen(false)}
         onInsertDocument={handleInsertDocument}
+      />
+
+      <ReminderModal
+        editor={editor || null}
+        isOpen={isReminderModalOpen}
+        onClose={() => setIsReminderModalOpen(false)}
+        savedSelectionRef={savedSelectionRef}
       />
 
       {/* Modal Pengaturan Urutan & Visibilitas Toolbar */}

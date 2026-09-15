@@ -81,7 +81,7 @@
 .ProseMirror ul[data-type="taskList"] li {
   display: flex !important;
   align-items: flex-start !important;
-  gap: 0.5rem !important;
+  gap: 0.6rem !important;
   margin-top: 0.25rem !important;
   margin-bottom: 0.25rem !important;
 }
@@ -91,7 +91,11 @@
   flex-shrink: 0 !important;
   user-select: none !important;
   cursor: pointer !important;
-  margin-top: 0.2rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: calc((var(--text-body-height, 1.7) * 1em - 1.1em) / 2) !important;
+  line-height: 1 !important;
 }
 
 .prose ul[data-type="taskList"] li > label input[type="checkbox"],
@@ -100,6 +104,7 @@
   -webkit-appearance: none !important;
   width: 1.1em !important;
   height: 1.1em !important;
+  margin: 0 !important;
   border: 1.5px solid var(--border-default) !important;
   border-radius: 0.25rem !important;
   outline: none !important;
@@ -108,6 +113,7 @@
   place-content: center !important;
   background-color: var(--bg-surface) !important;
   transition: all 0.15s ease !important;
+  box-sizing: border-box !important;
 }
 
 @media (hover: hover) {
@@ -143,6 +149,7 @@
 .ProseMirror ul[data-type="taskList"] li > div {
   flex: 1 1 auto !important;
   min-width: 0 !important;
+  line-height: 1.7 !important;
 }
 
 .prose {

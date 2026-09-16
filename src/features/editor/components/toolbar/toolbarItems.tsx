@@ -3,7 +3,7 @@ import {
   Undo, Redo, Bold, Italic, Highlighter, Heading1, Heading2, Heading3, List,
   ListOrdered, ListTodo, Indent, Outdent, Strikethrough, TextQuote, Code, SquareTerminal,
   Minus, Info, Link2, Link as LinkIcon, Tag, Music, Table as TableIcon, Columns2,
-  AlignLeft, AlignCenter, AlignRight, Mic, Image as ImageIcon, FileText, Bell
+  AlignLeft, AlignCenter, AlignRight, Mic, Image as ImageIcon, FileText, Bell, ClipboardList
 } from 'lucide-react';
 
 export interface ToolbarItem {
@@ -38,6 +38,7 @@ export const DEFAULT_TOOLBAR_ORDER: string[] = [
   'ordered-list',
   'task-list',
   'reminder',
+  'template',
   'indent',
   'outdent',
   'blockquote',
@@ -99,7 +100,8 @@ export const getToolbarItems = (
   openAudioModal: () => void, 
   openImageModal: () => void,
   openDocumentModal: () => void,
-  openReminderModal?: () => void
+  openReminderModal?: () => void,
+  openTemplateModal?: () => void
 ): ToolbarItem[] => {
   const cycleHeading = () => {
     if (!editor) return;
@@ -365,6 +367,19 @@ export const getToolbarItems = (
           openReminderModal();
         } else {
           window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
+        }
+      },
+      isActive: false,
+    },
+    { 
+      id: 'template',
+      icon: <ClipboardList size={18} />, 
+      label: 'Sisipkan Template Catatan (Ctrl+Shift+T)', 
+      action: () => {
+        if (openTemplateModal) {
+          openTemplateModal();
+        } else {
+          window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'template' }));
         }
       },
       isActive: false,

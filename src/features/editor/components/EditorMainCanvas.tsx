@@ -9,6 +9,7 @@ import { hasChordsInContent, hasEditorChords, transposeEditorChords } from '../l
 import { FileNode, VaultData } from '../../../types/vault';
 import { EditorMode } from '../../../types/editor';
 import { Wand2, Lock, Unlock } from 'lucide-react';
+import { InsertTemplateModal, TemplateInsertionMode } from '../../templates/components/InsertTemplateModal';
 
 interface EditorMainCanvasProps {
   vault: VaultData;
@@ -71,6 +72,59 @@ export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
   const [semitonesOffset, setSemitonesOffset] = useState<number>(0);
   const [hasChords, setHasChords] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
+
+  // Listen for template modal open events (e.g. from slash command /template or toolbar)
+  useEffect(() => {
+    const handleOpenModalEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail === 'template') {
+        setIsTemplateModalOpen(true);
+      }
+    };
+
+    window.addEventListener('noesis:open-modal', handleOpenModalEvent);
+    return () => {
+      window.removeEventListener('noesis:open-modal', handleOpenModalEvent);
+    };
+  }, []);
+
+  // Keyboard shortcut: Ctrl + Shift + T or Alt + T to open Template Picker
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCtrlShiftT = (e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'T' || e.key === 't');
+      const isAltT = e.altKey && (e.key === 'T' || e.key === 't');
+      if (isCtrlShiftT || isAltT) {
+        e.preventDefault();
+        setIsTemplateModalOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleInsertTemplateContent = (processedContent: string, mode: TemplateInsertionMode) => {
+    if (!tiptapEditor || tiptapEditor.isDestroyed) {
+      if (mode === 'replace') {
+        handleContentChange(processedContent);
+      } else {
+        const base = currentContent ? currentContent + '\n\n' : '';
+        handleContentChange(base + processedContent);
+      }
+      return;
+    }
+
+    if (mode === 'replace') {
+      tiptapEditor.chain().focus().setContent(processedContent).run();
+    } else if (mode === 'append') {
+      const docSize = tiptapEditor.state.doc.content.size;
+      tiptapEditor.chain().focus().insertContentAt(docSize, '\n\n' + processedContent).run();
+    } else {
+      // Default: insert at active cursor selection
+      tiptapEditor.chain().focus().insertContent(processedContent).run();
+    }
+  };
 
   const handleToggleLock = () => {
     setIsLocked((prev) => {
@@ -106,19 +160,25 @@ export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
     checkChords();
   }, [activeNode?.id, checkChords]);
 
-  // Listen to TipTap editor updates directly
+  // Listen to TipTap editor updates directly with debouncing
   useEffect(() => {
     if (!tiptapEditor || tiptapEditor.isDestroyed) return;
 
     checkChords();
 
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const handleUpdate = () => {
-      checkChords();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        checkChords();
+      }, 300);
     };
 
     tiptapEditor.on('update', handleUpdate);
     tiptapEditor.on('selectionUpdate', handleUpdate);
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       tiptapEditor.off('update', handleUpdate);
       tiptapEditor.off('selectionUpdate', handleUpdate);
     };
@@ -231,6 +291,17 @@ export const EditorMainCanvas: React.FC<EditorMainCanvasProps> = ({
           )}
         </main>
       )}
+
+      {/* Insert Template Modal */}
+      <InsertTemplateModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+        vault={vault}
+        activeNode={activeNode}
+        onInsertContent={handleInsertTemplateContent}
+        onUpdateMetadata={onUpdateMetadata}
+        onCreateTemplateNote={(targetFolderId) => handleCreateNewNote(targetFolderId || null)}
+      />
     </div>
   );
 };

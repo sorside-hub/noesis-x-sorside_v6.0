@@ -102,16 +102,34 @@ export const SafeDeleteExtension = Extension.create({
   addKeyboardShortcuts() {
     return {
       Backspace: ({ editor }) => {
-        if (!editor.state.selection.empty) {
-          return safeDeleteSelection(editor.state, editor.view.dispatch);
+        try {
+          const { selection } = editor.state;
+          if (!selection.empty) {
+            return safeDeleteSelection(editor.state, editor.view.dispatch);
+          }
+          // If at the absolute beginning of the document, safely consume the backspace
+          if (selection.$from.pos <= 1) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return true; // prevent unhandled crash
         }
-        return false;
       },
       Delete: ({ editor }) => {
-        if (!editor.state.selection.empty) {
-          return safeDeleteSelection(editor.state, editor.view.dispatch);
+        try {
+          const { selection, doc } = editor.state;
+          if (!selection.empty) {
+            return safeDeleteSelection(editor.state, editor.view.dispatch);
+          }
+          // If at the absolute end of the document, safely consume the delete
+          if (selection.$from.pos >= doc.content.size - 1) {
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return true;
         }
-        return false;
       },
     };
   },
@@ -122,48 +140,78 @@ export const SafeDeleteExtension = Extension.create({
         key: SafeDeletePluginKey,
         props: {
           handleKeyDown(view, event) {
-            if (event.key === 'Backspace' || event.key === 'Delete') {
-              if (!view.state.selection.empty) {
-                event.preventDefault();
-                return safeDeleteSelection(view.state, view.dispatch);
+            try {
+              if (event.key === 'Backspace') {
+                if (!view.state.selection.empty) {
+                  event.preventDefault();
+                  return safeDeleteSelection(view.state, view.dispatch);
+                }
+                if (view.state.selection.$from.pos <= 1) {
+                  event.preventDefault();
+                  return true;
+                }
+              } else if (event.key === 'Delete') {
+                if (!view.state.selection.empty) {
+                  event.preventDefault();
+                  return safeDeleteSelection(view.state, view.dispatch);
+                }
+                if (view.state.selection.$from.pos >= view.state.doc.content.size - 1) {
+                  event.preventDefault();
+                  return true;
+                }
               }
+            } catch (err) {
+              event.preventDefault();
+              return true;
             }
             return false;
           },
 
           handleDOMEvents: {
             beforeinput(view, event: any) {
-              const inputType = event.inputType;
-              if (
-                inputType === 'deleteContentBackward' ||
-                inputType === 'deleteContentForward' ||
-                inputType === 'deleteByCut' ||
-                inputType === 'deleteByDrag' ||
-                inputType === 'deleteHardLineBackward' ||
-                inputType === 'deleteSoftLineBackward'
-              ) {
-                if (!view.state.selection.empty) {
-                  event.preventDefault();
-                  return safeDeleteSelection(view.state, view.dispatch);
+              try {
+                const inputType = event.inputType;
+                if (inputType === 'deleteContentBackward') {
+                  if (!view.state.selection.empty) {
+                    event.preventDefault();
+                    return safeDeleteSelection(view.state, view.dispatch);
+                  }
+                  if (view.state.selection.$from.pos <= 1) {
+                    event.preventDefault();
+                    return true;
+                  }
+                } else if (
+                  inputType === 'deleteContentForward' ||
+                  inputType === 'deleteByCut' ||
+                  inputType === 'deleteByDrag' ||
+                  inputType === 'deleteHardLineBackward' ||
+                  inputType === 'deleteSoftLineBackward'
+                ) {
+                  if (!view.state.selection.empty) {
+                    event.preventDefault();
+                    return safeDeleteSelection(view.state, view.dispatch);
+                  }
                 }
-              }
 
-              // When typing characters over a full selection, safely replace with text
-              if (
-                inputType === 'insertText' &&
-                typeof event.data === 'string' &&
-                isFullDocSelection(view.state)
-              ) {
-                event.preventDefault();
-                const text = event.data;
-                const paragraph = view.state.schema.nodes.paragraph.create(
-                  null,
-                  text ? view.state.schema.text(text) : undefined
-                );
-                const tr = view.state.tr.replaceWith(0, view.state.doc.content.size, paragraph);
-                tr.setSelection(TextSelection.create(tr.doc, text.length + 1));
-                view.dispatch(tr.scrollIntoView());
-                return true;
+                // When typing characters over a full selection, safely replace with text
+                if (
+                  inputType === 'insertText' &&
+                  typeof event.data === 'string' &&
+                  isFullDocSelection(view.state)
+                ) {
+                  event.preventDefault();
+                  const text = event.data;
+                  const paragraph = view.state.schema.nodes.paragraph.create(
+                    null,
+                    text ? view.state.schema.text(text) : undefined
+                  );
+                  const tr = view.state.tr.replaceWith(0, view.state.doc.content.size, paragraph);
+                  tr.setSelection(TextSelection.create(tr.doc, text.length + 1));
+                  view.dispatch(tr.scrollIntoView());
+                  return true;
+                }
+              } catch (err) {
+                // Prevent DOM error from bubbling up
               }
 
               return false;

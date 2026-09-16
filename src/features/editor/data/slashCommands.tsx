@@ -28,7 +28,8 @@ import {
   Image as ImageIcon,
   Mic,
   FileText,
-  Bell
+  Bell,
+  ClipboardList
 } from 'lucide-react';
 
 export interface SlashCommand {
@@ -296,6 +297,15 @@ export const SLASH_COMMANDS: SlashCommand[] = [
   },
 
   // Inserts
+  {
+    id: 'template',
+    title: 'Sisipkan Template',
+    description: 'Pilih dan sisipkan template catatan beserta metadata',
+    category: 'Inserts',
+    keywords: ['template', 'tpl', 'pola', 'cetakan', 'boilerplate', 'layout', 'snippet'],
+    icon: <ClipboardList className="w-4 h-4 text-accent-primary" />,
+    action: () => ({ text: '' }),
+  },
   {
     id: 'link',
     title: 'Tautan / Link',

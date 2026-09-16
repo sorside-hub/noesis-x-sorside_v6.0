@@ -13,21 +13,24 @@ import {
   Moon,
   Sun,
   Check,
-  Contrast
+  Contrast,
+  ClipboardList
 } from 'lucide-react';
 import { VaultData, FileNode } from '../../../types/vault';
 import { ApiKeyStatusSection } from './ApiKeyStatusSection';
 import { SupabaseUnifiedCard } from './SupabaseUnifiedCard';
 import { NotificationSettingsCard } from './NotificationSettingsCard';
+import { TemplateSettingsCard } from '../../templates/components/TemplateSettingsCard';
 import { exportVaultToJSON, importVaultFromJSON } from '../../../lib/storage';
 import { useTheme, ThemeMode } from '../../../hooks/useTheme';
 
 
 interface SettingsViewProps {
   vault: VaultData;
+  createFolder?: (parentId: string | null, name: string) => string | null;
 }
 
-export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
+export const SettingsView: React.FC<SettingsViewProps> = ({ vault, createFolder }) => {
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importStatus, setImportStatus] = useState<{ type: 'loading' | 'success' | 'error'; message: string } | null>(null);
@@ -224,6 +227,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ vault }) => {
             Notifikasi & Pengingat
           </h2>
           <NotificationSettingsCard />
+        </section>
+
+        {/* 2.7 TEMPLATE CATATAN */}
+        <section className="space-y-2.5">
+          <h2 className="text-xs font-semibold text-text-muted uppercase tracking-wider px-1 flex items-center gap-2">
+            <ClipboardList size={14} className="text-accent-primary" /> 
+            Template Catatan
+          </h2>
+          <TemplateSettingsCard vault={vault} createFolder={createFolder} />
         </section>
 
         {/* 3. API KEYS & FAILOVER */}

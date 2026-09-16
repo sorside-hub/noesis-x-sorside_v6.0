@@ -27,59 +27,63 @@ export const TagExtension = Extension.create<TagOptions>({
         key: TagPluginKey,
         props: {
           decorations(state) {
-            const decorations: Decoration[] = [];
-            const { doc, selection } = state;
+            try {
+              const decorations: Decoration[] = [];
+              const { doc, selection } = state;
 
-            doc.descendants((node, pos, parent) => {
-              // Ignore code blocks
-              if (parent?.type.name === 'codeBlock' || node.type.name === 'codeBlock') {
-                return false;
-              }
-
-              if (node.isText && node.text) {
-                // Ignore text with inline code mark
-                if (node.marks.some((m) => m.type.name === 'code')) {
-                  return;
+              doc.descendants((node, pos, parent) => {
+                // Ignore code blocks
+                if (parent?.type.name === 'codeBlock' || node.type.name === 'codeBlock') {
+                  return false;
                 }
 
-                const text = node.text;
-                let match: RegExpExecArray | null;
-                TAG_REGEX.lastIndex = 0;
+                if (node.isText && node.text) {
+                  // Ignore text with inline code mark
+                  if (node.marks.some((m) => m.type.name === 'code')) {
+                    return;
+                  }
 
-                while ((match = TAG_REGEX.exec(text)) !== null) {
-                  const fullMatch = match[0];
-                  const tagWithHash = match[1]; // e.g. '#catatan'
-                  const tagIndexInFull = fullMatch.indexOf(tagWithHash);
-                  const start = pos + match.index + tagIndexInFull;
-                  const end = start + tagWithHash.length;
+                  const text = node.text;
+                  let match: RegExpExecArray | null;
+                  TAG_REGEX.lastIndex = 0;
 
-                  const rawTagName = tagWithHash.slice(1);
-                  if (!rawTagName) continue;
-                  const cleanTag = rawTagName.toLowerCase();
+                  while ((match = TAG_REGEX.exec(text)) !== null) {
+                    const fullMatch = match[0];
+                    const tagWithHash = match[1]; // e.g. '#catatan'
+                    const tagIndexInFull = fullMatch.indexOf(tagWithHash);
+                    const start = pos + match.index + tagIndexInFull;
+                    const end = start + tagWithHash.length;
 
-                  const isCursorInside = selection.from >= start && selection.to <= end;
+                    const rawTagName = tagWithHash.slice(1);
+                    if (!rawTagName) continue;
+                    const cleanTag = rawTagName.toLowerCase();
 
-                  if (isCursorInside) {
-                    decorations.push(
-                      Decoration.inline(start, end, {
-                        class: 'inline-tag-editing font-medium',
-                        'data-tag': cleanTag,
-                      })
-                    );
-                  } else {
-                    decorations.push(
-                      Decoration.inline(start, end, {
-                        class: 'inline-tag select-text',
-                        'data-tag': cleanTag,
-                        title: `Tag: #${cleanTag} • Ctrl + Klik untuk buka di sidebar`,
-                      })
-                    );
+                    const isCursorInside = selection.from >= start && selection.to <= end;
+
+                    if (isCursorInside) {
+                      decorations.push(
+                        Decoration.inline(start, end, {
+                          class: 'inline-tag-editing font-medium',
+                          'data-tag': cleanTag,
+                        })
+                      );
+                    } else {
+                      decorations.push(
+                        Decoration.inline(start, end, {
+                          class: 'inline-tag select-text',
+                          'data-tag': cleanTag,
+                          title: `Tag: #${cleanTag} • Ctrl + Klik untuk buka di sidebar`,
+                        })
+                      );
+                    }
                   }
                 }
-              }
-            });
+              });
 
-            return DecorationSet.create(doc, decorations);
+              return DecorationSet.create(doc, decorations);
+            } catch (err) {
+              return DecorationSet.empty;
+            }
           },
         },
       }),

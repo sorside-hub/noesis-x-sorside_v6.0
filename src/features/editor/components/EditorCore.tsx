@@ -1,4 +1,4 @@
-import { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
+import { useRef, useEffect, forwardRef, useImperativeHandle, useState, useCallback } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import { EditorMode } from '../../../types/editor';
 import { FileNode } from '../../../types/vault';
@@ -81,30 +81,77 @@ export const EditorCore = forwardRef<EditorCoreRef, EditorCoreProps>(({
     setChordModalState({ isOpen: true, chordName });
   });
 
+  const updateDebounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingEditorRef = useRef<any>(null);
+  const editorInstanceRef = useRef<any>(null);
+
+  const flushMarkdown = useCallback(() => {
+    if (updateDebounceTimerRef.current) {
+      clearTimeout(updateDebounceTimerRef.current);
+      updateDebounceTimerRef.current = null;
+    }
+    const currentEd = pendingEditorRef.current || editorInstanceRef.current;
+    if (currentEd && !currentEd.isDestroyed) {
+      try {
+        let markdown = (currentEd.storage as any).markdown?.getMarkdown?.() ?? '';
+        if (typeof markdown === 'string') {
+          // Ensure wikilinks with square brackets are clean and not escaped as \[\[...\]\]
+          markdown = markdown.replace(/\\\[\\\[/g, '[[').replace(/\\\]\\\]/g, ']]');
+          // Ensure headings escaped by markdown serializer (e.g. \# -> #) are cleaned
+          markdown = markdown.replace(/^\\(#+)/gm, '$1');
+        } else {
+          markdown = String(markdown || '');
+        }
+        if (markdown !== lastEmittedContentRef.current) {
+          lastEmittedContentRef.current = markdown;
+          onChange(markdown);
+        }
+      } catch (err) {
+        console.warn('Error serializing markdown in flush:', err);
+      }
+      pendingEditorRef.current = null;
+    }
+  }, [onChange]);
+
   const editor = useEditor({
     extensions: getEditorExtensions(nodesRef),
     content: initialContent,
     onUpdate: ({ editor }) => {
-      let markdown = (editor.storage as any).markdown?.getMarkdown?.() ?? '';
-      if (typeof markdown === 'string') {
-        // Ensure wikilinks with square brackets are clean and not escaped as \[\[...\]\]
-        markdown = markdown.replace(/\\\[\\\[/g, '[[').replace(/\\\]\\\]/g, ']]');
-        // Ensure headings escaped by markdown serializer (e.g. \# -> #) are cleaned
-        markdown = markdown.replace(/^\\(#+)/gm, '$1');
-      } else {
-        console.warn('getMarkdown did not return a string:', markdown);
-        markdown = String(markdown);
+      pendingEditorRef.current = editor;
+      editorInstanceRef.current = editor;
+      if (updateDebounceTimerRef.current) {
+        clearTimeout(updateDebounceTimerRef.current);
       }
-      lastEmittedContentRef.current = markdown;
-      onChange(markdown);
+      // Debounce markdown generation and React updates by 200ms to allow smooth 60fps rapid backspacing and typing
+      updateDebounceTimerRef.current = setTimeout(() => {
+        flushMarkdown();
+      }, 200);
     },
     onSelectionUpdate: ({ editor }) => {
+      editorInstanceRef.current = editor;
       const { from, to } = editor.state.selection;
       const hasSelection = from !== to;
       if (onSelectionChange) onSelectionChange(hasSelection);
     },
+    onBlur: () => {
+      flushMarkdown();
+    },
+    onDestroy: () => {
+      flushMarkdown();
+    },
     editorProps: getEditorProps(onWikilinkClickRef, onChordClickRef),
   });
+
+  useEffect(() => {
+    editorInstanceRef.current = editor;
+  }, [editor]);
+
+  // Flush pending edits when switching notes or unmounting
+  useEffect(() => {
+    return () => {
+      flushMarkdown();
+    };
+  }, [noteId, flushMarkdown]);
 
   useEffect(() => {
     if (onEditorReady) {

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 
 interface NoteTitleProps {
   title: string;
@@ -15,26 +15,48 @@ export const NoteTitle: React.FC<NoteTitleProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [localTitle, setLocalTitle] = useState(title);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedTitleRef = useRef(title);
+  const localTitleRef = useRef(title);
 
-  // Sync title prop to localTitle, but NEVER overwrite localTitle while the user is actively typing in this textarea
+  localTitleRef.current = localTitle;
+
+  const flushTitle = useCallback(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const currentVal = localTitleRef.current;
+    if (currentVal !== lastSavedTitleRef.current) {
+      lastSavedTitleRef.current = currentVal;
+      onChange(currentVal);
+    }
+  }, [onChange]);
+
+  // Sync title prop to localTitle when switching notes or when not focused
   useEffect(() => {
     if (document.activeElement !== textareaRef.current) {
       setLocalTitle(title);
+      lastSavedTitleRef.current = title;
+      localTitleRef.current = title;
     }
   }, [title]);
 
-  // Auto resize height based on content
-  const adjustHeight = () => {
+  // Auto resize height based on content smoothly
+  const adjustHeight = useCallback(() => {
     const textarea = textareaRef.current;
     if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.max(textarea.scrollHeight, 38)}px`;
+      requestAnimationFrame(() => {
+        if (!textarea) return;
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.max(textarea.scrollHeight, 38)}px`;
+      });
     }
-  };
+  }, []);
 
   useEffect(() => {
     adjustHeight();
-  }, [localTitle]);
+  }, [localTitle, adjustHeight]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -48,11 +70,25 @@ export const NoteTitle: React.FC<NoteTitleProps> = ({
 
     observer.observe(textarea);
     return () => observer.disconnect();
-  }, []);
+  }, [adjustHeight]);
+
+  // Flush on unmount or note switch
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        const currentVal = localTitleRef.current;
+        if (currentVal !== lastSavedTitleRef.current) {
+          onChange(currentVal);
+        }
+      }
+    };
+  }, [onChange]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      flushTitle();
       if (onEnterPress) {
         onEnterPress();
       }
@@ -78,7 +114,16 @@ export const NoteTitle: React.FC<NoteTitleProps> = ({
         onChange={(e) => {
           const val = e.target.value;
           setLocalTitle(val);
-          onChange(val);
+          localTitleRef.current = val;
+          if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+          }
+          debounceTimerRef.current = setTimeout(() => {
+            flushTitle();
+          }, 250);
+        }}
+        onBlur={() => {
+          flushTitle();
         }}
         onKeyDown={handleKeyDown}
         placeholder="Untitled"

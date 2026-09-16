@@ -110,7 +110,7 @@ function AppContent({ vaultState }: { vaultState: ReturnType<typeof useVault> })
 
         {/* Settings View */}
         <div className={`absolute inset-0 ${view === 'settings' ? 'block' : 'hidden'}`}>
-          <SettingsView vault={vaultState.vault} />
+          <SettingsView vault={vaultState.vault} createFolder={vaultState.createFolder} />
         </div>
       </div>
 

@@ -26,7 +26,7 @@ function getBalancedGeminiProviders(): [KeySlotId, KeySlotId] {
 /**
  * Profil 1: Gemini First (Fokus Nalar Tinggi, Konsep, Brainstorming & Pemahaman Konteks Luas)
  * Model urutan:
- * 1. gemini-2.5-flash (50/50 Key A -> Key B)
+ * 1. gemini-3.6-flash (50/50 Key A -> Key B)
  * 2. gemini-3.5-flash-lite (Anti-Macet 503, 50/50 Key A -> Key B)
  * 3. openai/gpt-oss-120b (Rescue Fallback Groq, 50/50 Key A -> Key B)
  * 4. openai/gpt-oss-20b (Final Safety Net, 50/50 Key A -> Key B)
@@ -36,9 +36,9 @@ export function getGeminiFirstCascade(): CascadeStep[] {
   const [q1, q2] = getBalancedGroqProviders();
 
   return [
-    // Tier 1: Stable Flagship Gemini (2.5 Flash / 3.6 tier)
-    { provider: g1, model: 'gemini-2.5-flash' },
-    { provider: g2, model: 'gemini-2.5-flash' },
+    // Tier 1: Gemini Flagship (3.6 Flash)
+    { provider: g1, model: 'gemini-3.6-flash' },
+    { provider: g2, model: 'gemini-3.6-flash' },
 
     // Tier 2: Ultra-Stable Gemini Lite (Anti High-Demand 503)
     { provider: g1, model: 'gemini-3.5-flash-lite' },
@@ -59,7 +59,7 @@ export function getGeminiFirstCascade(): CascadeStep[] {
  * Model urutan:
  * 1. openai/gpt-oss-20b (Kecepatan Instan, 50/50 Key A -> Key B)
  * 2. openai/gpt-oss-120b (Ketelitian Tinggi Groq, 50/50 Key A -> Key B)
- * 3. gemini-2.5-flash (Fallback Gemini Nalar, 50/50 Key A -> Key B)
+ * 3. gemini-3.6-flash (Fallback Gemini Nalar, 50/50 Key A -> Key B)
  * 4. gemini-3.5-flash-lite (Final Safety Net, 50/50 Key A -> Key B)
  */
 export function getGroqFirstCascade(): CascadeStep[] {
@@ -75,9 +75,9 @@ export function getGroqFirstCascade(): CascadeStep[] {
     { provider: q1, model: 'openai/gpt-oss-120b' },
     { provider: q2, model: 'openai/gpt-oss-120b' },
 
-    // Tier 3: Fallback ke Gemini Flagship (2.5 Flash)
-    { provider: g1, model: 'gemini-2.5-flash' },
-    { provider: g2, model: 'gemini-2.5-flash' },
+    // Tier 3: Fallback ke Gemini Flagship (3.6 Flash)
+    { provider: g1, model: 'gemini-3.6-flash' },
+    { provider: g2, model: 'gemini-3.6-flash' },
 
     // Tier 4: Final Safety Net ke Gemini Lite
     { provider: g1, model: 'gemini-3.5-flash-lite' },
@@ -97,8 +97,8 @@ export const getHeavyCascade = getGeminiFirstCascade;
 export function getGeminiOnlyCascade(): CascadeStep[] {
   const [g1, g2] = getBalancedGeminiProviders();
   return [
-    { provider: g1, model: 'gemini-2.5-flash' },
-    { provider: g2, model: 'gemini-2.5-flash' },
+    { provider: g1, model: 'gemini-3.6-flash' },
+    { provider: g2, model: 'gemini-3.6-flash' },
     { provider: g1, model: 'gemini-3.5-flash-lite' },
     { provider: g2, model: 'gemini-3.5-flash-lite' },
   ];

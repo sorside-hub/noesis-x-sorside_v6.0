@@ -215,6 +215,18 @@ export async function testKeyHealth(apiKey: string): Promise<{
   }
 }
 
+function normalizeModelForExecution(model: string, isGemini: boolean): string {
+  if (isGemini) {
+    if (model === 'gemini-3.6-flash' || model === '3.6-flash' || model === 'gemini-3.7-flash') {
+      return 'gemini-2.5-flash';
+    }
+    if (model === 'gemini-3.5-flash-lite' || model === '3.5-flash-lite') {
+      return 'gemini-2.0-flash-lite';
+    }
+  }
+  return model;
+}
+
 /**
  * Main Failover Adapter Execution Wrapper:
  * Automatically iterates through the provided cascade plan (switching models and providers)
@@ -243,6 +255,7 @@ export async function executeWithFailover<T>(
 
     const isGemini = slotId === 'gemini' || slotId === 'gemini_primary' || slotId === 'gemini_secondary';
     const client = isGemini ? createGeminiClient(targetKey) : createGroqClient(targetKey);
+    const modelToExecute = normalizeModelForExecution(step.model, isGemini);
 
     const MAX_RETRIES = 1; // Up to 1 retry (2 attempts total) for transient/high demand errors
 
@@ -250,11 +263,11 @@ export async function executeWithFailover<T>(
       try {
         if (attempt > 0) {
           console.log(
-            `[FailoverAdapter] Retry #${attempt} for ${slotId} (${step.model})...`
+            `[FailoverAdapter] Retry #${attempt} for ${slotId} (${step.model} -> ${modelToExecute})...`
           );
         }
 
-        const data = await taskRunner(client, slotId, step.model);
+        const data = await taskRunner(client, slotId, modelToExecute);
         
         attempts.push({
           slotId,

@@ -4,7 +4,6 @@ import { ChatMessageRecord } from '../../../lib/db';
 import { retrieveChatContext } from '../services/chatContextRetriever';
 import { executeChatStream, summarizeChatMemory } from '../services/chatStreamClient';
 import { useChatSessionManager } from './useChatSessionManager';
-import { useChatMarkdownRenderer } from './useChatMarkdownRenderer';
 
 export type ChatMode = 'rag' | 'current';
 
@@ -36,7 +35,6 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
   const [threshold, setThreshold] = useState<number>(0.55);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingPhase, setProcessingPhase] = useState<'idle' | 'rag' | 'generating'>('idle');
-  const [renderedHtmlMap, setRenderedHtmlMap] = useState<Record<string, string>>({});
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -45,14 +43,7 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
   const activeNode =
     activeTabId && vault.nodes[activeTabId] ? (vault.nodes[activeTabId] as FileNode) : null;
 
-  // Render markdown for assistant messages with caching
-  useChatMarkdownRenderer({
-    messages,
-    vaultNodes: vault.nodes,
-    setRenderedHtmlMap,
-  });
-
-  // Auto-scroll is now handled inside ChatMessageFeed directly using Smart Scroll
+  // Auto-scroll is handled inside ChatMessageFeed directly using Smart Scroll
 
   // Toggle Context Inspector Accordion per Message
   const toggleContextInspector = useCallback((msgId: string) => {
@@ -344,7 +335,6 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
     setThreshold,
     isProcessing,
     processingPhase,
-    renderedHtmlMap,
     expandedContexts,
     messagesEndRef,
     textareaRef,

@@ -45,7 +45,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ vault, vaultState }) => {
     setThreshold,
     isProcessing,
     processingPhase,
-    renderedHtmlMap,
     expandedContexts,
     messagesEndRef,
     textareaRef,
@@ -245,7 +244,6 @@ export const ChatView: React.FC<ChatViewProps> = ({ vault, vaultState }) => {
         <ChatMessageFeed
           messages={messages}
           activeSessionId={activeSessionId}
-          renderedHtmlMap={renderedHtmlMap}
           expandedContexts={expandedContexts}
           toggleContextInspector={toggleContextInspector}
           messagesEndRef={messagesEndRef}

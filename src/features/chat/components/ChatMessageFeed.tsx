@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, UIEvent, useLayoutEffect, useMemo } from 'react';
-import { Loader2, ArrowDown } from 'lucide-react';
+import { Loader2, ArrowDown, Search, Sparkles } from 'lucide-react';
 import { ChatMessageRecord } from '../../../lib/db';
 import { ChatMode } from '../hooks/useChatLogic';
 import { useNavigation } from '../../../context/NavigationContext';
@@ -12,7 +12,7 @@ import { CascadeLogModal } from './CascadeLogModal';
 interface ChatMessageFeedProps {
   messages: ChatMessageRecord[];
   activeSessionId?: string;
-  renderedHtmlMap: Record<string, string>;
+  renderedHtmlMap?: Record<string, string>;
   expandedContexts?: Record<string, boolean>;
   toggleContextInspector?: (msgId: string) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
@@ -41,7 +41,6 @@ const MarkdownContent: React.FC<{ content: string; nodes?: any }> = React.memo((
 export const ChatMessageFeed: React.FC<ChatMessageFeedProps> = ({
   messages,
   activeSessionId,
-  renderedHtmlMap,
   messagesEndRef,
   vaultState,
   isProcessing = false,
@@ -191,7 +190,7 @@ export const ChatMessageFeed: React.FC<ChatMessageFeedProps> = ({
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
     // Absolutely NO auto-scroll while streaming unless user is already at the bottom
-  }, [uniqueMessages, activeSessionId, renderedHtmlMap]);
+  }, [uniqueMessages, activeSessionId]);
 
 
   return (
@@ -251,11 +250,24 @@ export const ChatMessageFeed: React.FC<ChatMessageFeedProps> = ({
                 ) : (
                   <div className="w-full space-y-3 pt-1">
                     {!msg.content || msg.content.trim().length === 0 ? (
-                      /* Minimalist 3-dots pulsing/bouncing loading animation */
-                      <div className="flex items-center gap-1.5 py-2 px-1 text-accent-primary">
-                        <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-duration:0.6s] [animation-delay:-0.3s]" />
-                        <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-duration:0.6s] [animation-delay:-0.15s]" />
-                        <span className="w-2 h-2 rounded-full bg-accent-primary/80 animate-bounce [animation-duration:0.6s]" />
+                      /* Dynamic Real-time Status Badge */
+                      <div className="inline-flex items-center gap-2.5 py-2 px-3.5 rounded-xl bg-bg-surface border border-border-default shadow-xs text-xs text-text-muted animate-in fade-in duration-200">
+                        {processingPhase === 'rag' ? (
+                          <>
+                            <Search size={13} className="text-accent-primary animate-pulse shrink-0" />
+                            <span className="font-sans">Mencari konteks catatan terkait di Vault (RAG)...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={13} className="text-accent-primary animate-pulse shrink-0" />
+                            <span className="font-sans">Menghubungkan ke AI & merumuskan jawaban...</span>
+                          </>
+                        )}
+                        <span className="flex gap-1 ml-1.5 shrink-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/70 animate-bounce [animation-duration:0.6s] [animation-delay:-0.3s]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/70 animate-bounce [animation-duration:0.6s] [animation-delay:-0.15s]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent-primary/70 animate-bounce [animation-duration:0.6s]" />
+                        </span>
                       </div>
                     ) : (
                       <div className="relative">

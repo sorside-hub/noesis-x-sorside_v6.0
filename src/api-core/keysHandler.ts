@@ -31,9 +31,14 @@ export async function handleKeysOverview(
       envVarName: 'GROQ_API_KEY_SECONDARY',
     },
     {
-      id: 'gemini',
-      label: 'Google Gemini API Key',
+      id: 'gemini_primary',
+      label: 'Google Gemini API Key (Primary)',
       envVarName: 'GEMINI_API_KEY',
+    },
+    {
+      id: 'gemini_secondary',
+      label: 'Google Gemini API Key (Secondary)',
+      envVarName: 'GEMINI_API_KEY_SECONDARY',
     },
   ];
 
@@ -85,6 +90,10 @@ export async function handleKeysOverview(
   slotResults.forEach((item) => {
     slotsMap[item.id] = item.info;
   });
+
+  if (slotsMap.gemini_primary && !slotsMap.gemini) {
+    slotsMap.gemini = { ...slotsMap.gemini_primary, id: 'gemini', label: 'Google Gemini API Key' };
+  }
 
   return {
     ok: true,

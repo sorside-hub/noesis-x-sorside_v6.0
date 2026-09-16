@@ -85,8 +85,11 @@ export function resolveServerKeyForSlot(
   const getEnv = (name: string) => envObj[name] || '';
 
   switch (slotId) {
+    case 'gemini_primary':
     case 'gemini':
       return getEnv('GEMINI_API_KEY');
+    case 'gemini_secondary':
+      return getEnv('GEMINI_API_KEY_SECONDARY');
     case 'groq_primary':
       return getEnv('GROQ_API_KEY');
     case 'groq_secondary':
@@ -238,7 +241,8 @@ export async function executeWithFailover<T>(
       continue;
     }
 
-    const client = slotId === 'gemini' ? createGeminiClient(targetKey) : createGroqClient(targetKey);
+    const isGemini = slotId === 'gemini' || slotId === 'gemini_primary' || slotId === 'gemini_secondary';
+    const client = isGemini ? createGeminiClient(targetKey) : createGroqClient(targetKey);
 
     const MAX_RETRIES = 1; // Up to 1 retry (2 attempts total) for transient/high demand errors
 

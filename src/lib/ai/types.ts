@@ -4,7 +4,12 @@
 
 import { CascadeStep } from './cascadeProfiles';
 
-export type KeySlotId = 'groq_primary' | 'groq_secondary' | 'gemini';
+export type KeySlotId = 
+  | 'groq_primary' 
+  | 'groq_secondary' 
+  | 'gemini_primary' 
+  | 'gemini_secondary' 
+  | 'gemini'; // Backward compatibility alias for gemini_primary
 
 export type KeyHealthStatus = 
   | 'active'

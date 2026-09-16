@@ -40,10 +40,14 @@ export function maskApiKey(key: string): string {
  * Get all custom API keys stored in localStorage
  */
 export function getAllLocalKeyOverrides(): Partial<Record<KeySlotId, string>> {
+  const geminiPrimary = getLocalKeyOverride('gemini_primary') || getLocalKeyOverride('gemini');
+  const geminiSecondary = getLocalKeyOverride('gemini_secondary');
   return {
     groq_primary: getLocalKeyOverride('groq_primary'),
     groq_secondary: getLocalKeyOverride('groq_secondary'),
-    gemini: getLocalKeyOverride('gemini'),
+    gemini_primary: geminiPrimary,
+    gemini_secondary: geminiSecondary,
+    gemini: geminiPrimary,
   };
 }
 
@@ -57,10 +61,13 @@ let cachedOverview: SystemKeysOverviewResponse | null = null;
  * Request server to check health status of API keys
  */
 export async function checkAllKeysOverview(forceRefresh = false): Promise<SystemKeysOverviewResponse> {
+  const geminiPrimary = getLocalKeyOverride('gemini_primary') || getLocalKeyOverride('gemini');
   const customKeys: Record<string, string> = {
     groq_primary: getLocalKeyOverride('groq_primary'),
     groq_secondary: getLocalKeyOverride('groq_secondary'),
-    gemini: getLocalKeyOverride('gemini'),
+    gemini_primary: geminiPrimary,
+    gemini_secondary: getLocalKeyOverride('gemini_secondary'),
+    gemini: geminiPrimary,
   };
 
   // Check cache first (returns cache if it exists and we are not forcing a refresh)
@@ -109,6 +116,26 @@ export async function checkAllKeysOverview(forceRefresh = false): Promise<System
           envVarName: 'GROQ_API_KEY_SECONDARY',
           isCustom: !!customKeys.groq_secondary,
           maskedKey: maskApiKey(customKeys.groq_secondary),
+          status: 'error',
+          message: errorMessage,
+          lastCheckedAt: now,
+        },
+        gemini_primary: {
+          id: 'gemini_primary',
+          label: 'Google Gemini API Key (Primary)',
+          envVarName: 'GEMINI_API_KEY',
+          isCustom: !!customKeys.gemini_primary,
+          maskedKey: maskApiKey(customKeys.gemini_primary),
+          status: 'error',
+          message: errorMessage,
+          lastCheckedAt: now,
+        },
+        gemini_secondary: {
+          id: 'gemini_secondary',
+          label: 'Google Gemini API Key (Secondary)',
+          envVarName: 'GEMINI_API_KEY_SECONDARY',
+          isCustom: !!customKeys.gemini_secondary,
+          maskedKey: maskApiKey(customKeys.gemini_secondary),
           status: 'error',
           message: errorMessage,
           lastCheckedAt: now,

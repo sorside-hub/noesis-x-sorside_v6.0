@@ -243,7 +243,8 @@ export const ApiKeyStatusSection: React.FC = () => {
 
         {renderSlotRow('groq_primary', overview?.slots.groq_primary, <Zap size={16} className="text-status-warning" />)}
         {renderSlotRow('groq_secondary', overview?.slots.groq_secondary, <Zap size={16} className="text-amber-500" />)}
-        {renderSlotRow('gemini', overview?.slots.gemini, <Sparkles size={16} className="text-accent-primary" />)}
+        {renderSlotRow('gemini_primary', overview?.slots.gemini_primary || overview?.slots.gemini, <Sparkles size={16} className="text-accent-primary" />)}
+        {renderSlotRow('gemini_secondary', overview?.slots.gemini_secondary, <Sparkles size={16} className="text-cyan-500" />)}
       </div>
     </>
   );

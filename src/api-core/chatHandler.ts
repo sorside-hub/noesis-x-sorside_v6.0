@@ -1,6 +1,6 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getSmartCascade } from '../lib/ai/cascadeProfiles';
+import { getGeminiFirstCascade } from '../lib/ai/cascadeProfiles';
 
 export interface ChatHistoryMessage {
   role: 'user' | 'assistant';
@@ -94,7 +94,7 @@ export async function handleChatStream(
   const prompt = prepareChatPrompt(params);
 
   return executeWithFailover<string>(
-    { cascade: getSmartCascade(), customKeys, envObj },
+    { cascade: getGeminiFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
       const responseStream = await client.models.generateContentStream({
         model,
@@ -129,7 +129,7 @@ export async function handleChatGenerate(
   const prompt = prepareChatPrompt(params);
 
   return executeWithFailover<string>(
-    { cascade: getSmartCascade(), customKeys, envObj },
+    { cascade: getGeminiFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
       const response = await client.models.generateContent({
         model,

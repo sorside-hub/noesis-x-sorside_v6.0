@@ -1,6 +1,6 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getSmartCascade } from '../lib/ai/cascadeProfiles';
+import { getGroqFirstCascade } from '../lib/ai/cascadeProfiles';
 
 export interface ExistingFolderInfo {
   id: string;
@@ -301,7 +301,7 @@ export async function handleAutoDetect(
   }
 
   return executeWithFailover(
-    { cascade: getSmartCascade(), customKeys, envObj },
+    { cascade: getGroqFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
       const prompt = `Anda adalah Noesis Knowledge Librarian, kurator sistem Personal Knowledge Management (PKM) berbasis fungsi pemikiran (cognitive purpose).
 Analisis judul dan isi catatan ini, lalu tentukan judul terbaik (suggestedTitle), jenis catatan (noteType), tags, aliases, dan penempatan folder.

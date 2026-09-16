@@ -122,7 +122,7 @@ export async function checkAllKeysOverview(forceRefresh = false): Promise<System
         },
         gemini_primary: {
           id: 'gemini_primary',
-          label: 'Google Gemini API Key (Primary)',
+          label: 'Gemini API Key (Primary)',
           envVarName: 'GEMINI_API_KEY',
           isCustom: !!customKeys.gemini_primary,
           maskedKey: maskApiKey(customKeys.gemini_primary),
@@ -132,7 +132,7 @@ export async function checkAllKeysOverview(forceRefresh = false): Promise<System
         },
         gemini_secondary: {
           id: 'gemini_secondary',
-          label: 'Google Gemini API Key (Secondary)',
+          label: 'Gemini API Key (Secondary)',
           envVarName: 'GEMINI_API_KEY_SECONDARY',
           isCustom: !!customKeys.gemini_secondary,
           maskedKey: maskApiKey(customKeys.gemini_secondary),
@@ -142,7 +142,7 @@ export async function checkAllKeysOverview(forceRefresh = false): Promise<System
         },
         gemini: {
           id: 'gemini',
-          label: 'Google Gemini API Key',
+          label: 'Gemini API Key',
           envVarName: 'GEMINI_API_KEY',
           isCustom: !!customKeys.gemini,
           maskedKey: maskApiKey(customKeys.gemini),

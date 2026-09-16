@@ -1,6 +1,6 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getSmartCascade } from '../lib/ai/cascadeProfiles';
+import { getGroqFirstCascade } from '../lib/ai/cascadeProfiles';
 
 export interface InboxTriageItem {
   id: string;
@@ -36,7 +36,7 @@ ${cleanContent || '(Konten kosong)'}
   }).join('\n');
 
   const execution = await executeWithFailover(
-    { cascade: getSmartCascade(), customKeys, envObj },
+    { cascade: getGroqFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
       const prompt = `Kamu adalah kurator pengetahuan pribadi (Personal Knowledge Management Curator).
 

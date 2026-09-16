@@ -1,6 +1,6 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getFastCascade, getSmartCascade } from '../lib/ai/cascadeProfiles';
+import { getGroqFirstCascade } from '../lib/ai/cascadeProfiles';
 
 export type EditorActionType = 'grammar' | 'summarize' | 'tone' | 'translate' | 'expand' | 'custom' | 'ask';
 
@@ -11,11 +11,8 @@ export async function handleEditorAction(
   customKeys?: Partial<Record<KeySlotId, string>>,
   envObj: Record<string, string | undefined> = (typeof process !== 'undefined' ? process.env : {})
 ) {
-  const isComplexAction = ['tone', 'expand', 'custom', 'ask'].includes(action);
-  const selectedCascade = isComplexAction ? getSmartCascade() : getFastCascade();
-
   return executeWithFailover(
-    { cascade: selectedCascade, customKeys, envObj }, 
+    { cascade: getGroqFirstCascade(), customKeys, envObj }, 
     async (client, slotId, model) => {
       let prompt = '';
 

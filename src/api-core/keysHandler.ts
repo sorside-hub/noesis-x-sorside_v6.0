@@ -32,12 +32,12 @@ export async function handleKeysOverview(
     },
     {
       id: 'gemini_primary',
-      label: 'Google Gemini API Key (Primary)',
+      label: 'Gemini API Key (Primary)',
       envVarName: 'GEMINI_API_KEY',
     },
     {
       id: 'gemini_secondary',
-      label: 'Google Gemini API Key (Secondary)',
+      label: 'Gemini API Key (Secondary)',
       envVarName: 'GEMINI_API_KEY_SECONDARY',
     },
   ];
@@ -92,7 +92,7 @@ export async function handleKeysOverview(
   });
 
   if (slotsMap.gemini_primary && !slotsMap.gemini) {
-    slotsMap.gemini = { ...slotsMap.gemini_primary, id: 'gemini', label: 'Google Gemini API Key' };
+    slotsMap.gemini = { ...slotsMap.gemini_primary, id: 'gemini', label: 'Gemini API Key' };
   }
 
   return {

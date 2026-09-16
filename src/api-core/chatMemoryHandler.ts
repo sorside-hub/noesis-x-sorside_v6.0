@@ -1,6 +1,6 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getHeavyCascade } from '../lib/ai/cascadeProfiles';
+import { getGeminiFirstCascade } from '../lib/ai/cascadeProfiles';
 import { ChatHistoryMessage } from './chatHandler';
 
 export interface SummarizeChatMemoryParams {
@@ -43,7 +43,7 @@ INSTRUKSI:
 4. JANGAN menyertakan basa-basi atau kata pengantar/penutup, langsung berikan poin-poin ringkasan memorinya.`;
 
   return executeWithFailover(
-    { cascade: getHeavyCascade(), customKeys, envObj },
+    { cascade: getGeminiFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
       const response = await client.models.generateContent({
         model,

@@ -1,17 +1,14 @@
 import { KeySlotId } from '../lib/ai/types';
 import { executeWithFailover } from '../lib/ai/failoverAdapter';
-import { getSmartCascade, getHeavyCascade } from '../lib/ai/cascadeProfiles';
+import { getGeminiFirstCascade } from '../lib/ai/cascadeProfiles';
 
 export async function handleAnalyzeNote(
   content: string,
   customKeys?: Partial<Record<KeySlotId, string>>,
   envObj: Record<string, string | undefined> = (typeof process !== 'undefined' ? process.env : {})
 ) {
-  // Pre-flight Routing: Bypass Groq for massive documents
-  const selectedCascade = content.length > 6000 ? getHeavyCascade() : getSmartCascade();
-
   return executeWithFailover(
-    { cascade: selectedCascade, customKeys, envObj }, 
+    { cascade: getGeminiFirstCascade(), customKeys, envObj }, 
     async (client, slotId, model) => {
       const prompt = `Analisis catatan berikut dan ekstrak informasi kuncinya. 
 Return ONLY a valid JSON object with the following exact keys and types.

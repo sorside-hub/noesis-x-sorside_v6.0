@@ -1,6 +1,6 @@
 
-import { executeWithFailover, resolveServerKeyForSlot } from '../lib/ai/failoverAdapter';
-import { getHeavyCascade } from '../lib/ai/cascadeProfiles';
+import { executeWithFailover } from '../lib/ai/failoverAdapter';
+import { getGeminiOnlyCascade } from '../lib/ai/cascadeProfiles';
 import { KeySlotId } from '../lib/ai/types';
 
 export async function handleVoiceToNote(
@@ -15,9 +15,9 @@ export async function handleVoiceToNote(
 
   const cleanMimeType = mimeType.split(';')[0]; // remove codecs for file typing
 
-  // Use Gemini's native audio understanding via Smart Cascade
+  // Use Gemini's native audio understanding via Gemini Only Cascade
   const result = await executeWithFailover(
-    { cascade: getHeavyCascade(), customKeys, envObj },
+    { cascade: getGeminiOnlyCascade(), customKeys, envObj },
     async (client, slotId, model) => {
       const prompt = `Saya baru saja merekam "brain dump" atau catatan suara (terlampir pada audio ini).
 

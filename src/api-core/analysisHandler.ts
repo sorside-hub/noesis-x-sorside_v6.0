@@ -11,13 +11,15 @@ export async function handleAnalyzeNote(
     { cascade: getGeminiFirstCascade(), customKeys, envObj }, 
     async (client, slotId, model) => {
       const prompt = `Analisis catatan berikut dan ekstrak informasi kuncinya. 
-Return ONLY a valid JSON object with the following exact keys and types.
-NILAI (values) dari JSON ini WAJIB menggunakan Bahasa Indonesia:
+Return ONLY a valid JSON object with the exact keys described below.
+PENTING: Nilai (values) WAJIB menggunakan Bahasa Indonesia.
+
+Skema JSON yang diminta:
 {
-  "summary": "string, ringkasan padat dan informatif sebanyak 2-3 kalimat",
-  "keywords": ["string", "array berisi 3-7 kata kunci atau tag penting"],
-  "concepts": ["string", "array berisi 2-5 konsep utama, model mental, atau topik yang dibahas"],
-  "emotion": "string, SATU KATA sifat yang mewakili nada atau emosi dominan (misal: Netral, Antusias, Cemas, Analitis, Reflektif, Kreatif, Mendesak)"
+  "summary": "<String. Berikan ringkasan padat dan informatif sebanyak 2-3 kalimat>",
+  "keywords": ["<Array of Strings. Berikan 3-7 kata kunci atau tag penting>"],
+  "concepts": ["<Array of Strings. Berikan 2-5 konsep utama, model mental, atau topik yang dibahas>"],
+  "emotion": "<String. Berikan HANYA SATU KATA sifat yang mewakili nada atau emosi dominan. Contoh: Netral, Antusias, Cemas, Analitis, Reflektif, Kreatif>"
 }
 
 Konten catatan untuk dianalisis:

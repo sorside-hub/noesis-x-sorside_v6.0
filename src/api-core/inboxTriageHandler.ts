@@ -26,76 +26,36 @@ export async function handleInboxTriage(
 
   // Build notes summary payload to keep tokens concise and fast
   const notesPayload = notes.map((n, idx) => {
-    const cleanContent = (n.content || '').slice(0, 1500).trim();
+    // Increased safety truncation from 1500 to 2500 for better context
+    const cleanContent = (n.content || '').slice(0, 2500).trim();
     return `--- Note ${idx + 1} ---
 ID: ${n.id}
 Judul: ${n.title}
 Konten:
-${cleanContent || '(Konten kosong)'}
-`;
-  }).join('\n');
+${cleanContent || '(Konten kosong)'}`;
+  }).join('\n\n');
 
   const execution = await executeWithFailover(
     { cascade: getGroqFirstCascade(), customKeys, envObj },
     async (client, _slotId, model) => {
-      const prompt = `Kamu adalah kurator pengetahuan pribadi (Personal Knowledge Management Curator).
+      const prompt = `Kamu adalah Ahli Kurasi Pengetahuan (Personal Knowledge Management Curator).
+Tugasmu adalah menilai kumpulan catatan mentah (Inbox) dan menentukan secara tegas apakah catatan tersebut layak disimpan ("keeper") atau masih terlalu buram/kabur ("refine").
 
-Tugasmu adalah menilai setiap catatan mentah dari Inbox dan menentukan apakah catatan tersebut sudah layak dipertahankan sebagai bagian dari knowledge base pribadi atau masih membutuhkan penyempurnaan.
+ATURAN KURASI KETAT:
+1. "keeper": Catatan memiliki esensi yang jelas (insight, fakta, tugas, ide, atau referensi dengan konteks). Panjang/pendek TIDAK relevan. Jika 1 kalimat sudah bermakna, itu adalah "keeper".
+2. "refine": Catatan berupa fragmen terputus, sekadar link tanpa penjelasan, atau ide abstrak yang tidak akan dipahami oleh penulisnya sendiri di masa depan.
+3. JANGAN menilai berdasarkan tata bahasa, ejaan, atau kerapian. Fokus murni pada: "Apakah informasi ini punya nilai retensi (guna di masa depan)?"
 
-Gunakan hanya informasi yang tersedia di dalam catatan. Jangan mengarang konteks, maksud, fakta, atau informasi yang tidak tertulis.
-
-Untuk setiap catatan, pilih salah satu verdict:
-
-"keeper"
-Catatan sudah memiliki nilai yang cukup jelas untuk dipertahankan. Catatan tidak harus panjang atau sempurna. Catatan pendek tetap dapat menjadi keeper jika mengandung:
-- insight atau pemikiran yang jelas
-- informasi yang berguna
-- observasi atau pengalaman yang bermakna
-- ide yang dapat dikembangkan
-- kesimpulan atau prinsip yang sudah cukup jelas
-- referensi yang memiliki konteks atau alasan jelas untuk disimpan
-
-"refine"
-Catatan belum memiliki konteks atau substansi yang cukup untuk berguna jika disimpan apa adanya. Contohnya:
-- fragmen yang tidak jelas maksudnya
-- pertanyaan yang belum memiliki konteks
-- ide yang terlalu kabur untuk dipahami kembali
-- link/referensi tanpa konteks
-- catatan yang membutuhkan informasi penting agar maknanya dapat dipahami
-- catatan yang jelas masih berupa bahan mentah dan belum menyampaikan gagasan yang dapat dipertahankan
-
-PENTING:
-- Jangan menggunakan panjang catatan sebagai penentu utama.
-- Catatan pendek tidak otomatis menjadi "refine".
-- Catatan panjang tidak otomatis menjadi "keeper".
-- Nilai dan kejelasan informasi lebih penting daripada panjang tulisan.
-- Jangan menganggap catatan sebagai "refine" hanya karena gaya penulisannya informal atau tidak rapi.
-- Jangan mengubah atau memperbaiki isi catatan.
-- Jangan memberikan saran pengembangan dalam reason. Jelaskan hanya alasan kenapa catatan tersebut termasuk keeper atau refine.
-- Jika konten terlihat terpotong, jangan menganggap bagian yang tidak terlihat sebagai informasi yang tidak ada.
-- Jika informasi tidak cukup untuk memastikan kualitas catatan, pilih verdict berdasarkan apa yang benar-benar tersedia dan gunakan confidence yang lebih rendah.
-
-CONFIDENCE:
-90-95 = sangat yakin terhadap verdict
-75-89 = cukup yakin
-60-74 = ambigu atau membutuhkan interpretasi
-
-WAJIB mengembalikan HANYA objek JSON valid dengan struktur berikut:
-
+ATURAN OUTPUT (STRICT JSON):
+1. WAJIB kembalikan HANYA objek JSON dengan key "results" berisi array.
+2. PENTING: Jumlah item di dalam array "results" WAJIB SAMA PERSIS dengan jumlah catatan yang diberikan. JANGAN ADA CATATAN YANG TERLEWAT!
+3. Skema tiap item JSON:
 {
-  "results": [
-    {
-      "id": "ID catatan yang bersangkutan",
-      "verdict": "keeper" atau "refine",
-      "confidence": integer 60-95,
-      "reason": "1 kalimat penjelasan tajam dan ramah dalam Bahasa Indonesia"
-    }
-  ]
+  "id": "<String ID catatan persis seperti input>",
+  "verdict": "<String, pilih HANYA: 'keeper' atau 'refine'>",
+  "confidence": <Integer 60-100 tingkat keyakinanmu>,
+  "reason": "<String 1 kalimat analitis, tajam, dan singkat dalam Bahasa Indonesia yang menjelaskan kenapa kamu memilih verdict tersebut>"
 }
-
-Pastikan setiap catatan memiliki tepat satu hasil.
-Pertahankan ID persis seperti yang diberikan.
-Jangan menambahkan field lain.
 
 Daftar catatan Inbox yang akan dikurasi:
 ${notesPayload}`;

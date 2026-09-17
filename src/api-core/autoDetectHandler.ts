@@ -306,6 +306,7 @@ export async function handleAutoDetect(
       const prompt = `Anda adalah Noesis Knowledge Librarian, kurator sistem Personal Knowledge Management (PKM) berbasis fungsi pemikiran (cognitive purpose).
 Analisis judul dan isi catatan ini, lalu tentukan judul terbaik (suggestedTitle), jenis catatan (noteType), tags, aliases, dan penempatan folder.
 PENTING: Gunakan bahasa yang sama dengan isi catatan. JIKA CATATAN BERBAHASA INDONESIA, MAKA 'suggestedTitle', 'noteType', 'tags', 'aliases', dan nama subfolder BARU WAJIB MENGGUNAKAN BAHASA INDONESIA.
+Khusus untuk field "reasoning" (alasan pemilihan folder), WAJIB SELALU menggunakan BAHASA INDONESIA yang analitis dan jelas terlepas dari bahasa catatannya.
 
 DETAIL CATATAN:
 - Judul Saat Ini: ${title || 'Untitled'}
@@ -421,6 +422,7 @@ Berikan respons HANYA dalam format JSON yang valid sesuai dengan schema.`;
         config: {
           responseMimeType: 'application/json',
           responseSchema: schema,
+          temperature: 0.2, // Rendahkan temperature agar struktur dan taksonomi yang dihasilkan sangat konsisten
         },
       });
 

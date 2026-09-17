@@ -19,26 +19,26 @@ export async function handleVoiceToNote(
   const result = await executeWithFailover(
     { cascade: getGeminiOnlyCascade(), customKeys, envObj },
     async (client, slotId, model) => {
-      const prompt = `Saya baru saja merekam "brain dump" atau catatan suara (terlampir pada audio ini).
+      const prompt = `Saya baru saja merekam "brain dump" atau catatan suara. Dengarkan rekaman audio terlampir dan proses menjadi "Catatan Utama" dan "Transkrip Asli".
 
-Tugas Anda:
-1. Dengarkan rekaman audio tersebut dan hasilkan DUA bagian: "Catatan Utama" dan "Transkrip Asli".
+ATURAN KETAT:
+1. BAHASA: WAJIB gunakan Bahasa Indonesia untuk Catatan Utama. Untuk Transkrip, ketikkan sesuai bahasa aslinya.
+2. FORMAT OUTPUT: JANGAN membungkus hasil dengan markdown code block (\`\`\`).
+3. JIKA SUARA TIDAK JELAS: Jika audio hanya berisi keheningan, suara bising, atau tidak ada ucapan yang dapat dipahami, KEMBALIKAN HANYA TEKS INI TEPAT SEPERTI INI: "Audio tidak terdengar jelas. Silakan coba rekam kembali." (Jangan berikan format lain).
 
-2. Pada bagian pertama, buatlah Catatan Utama. Anda HARUS:
-   - Mengekstrak ide utama, poin penting, dan konteks dari pembicaraan.
-   - Membuang kata-kata pengisi (filler), pengulangan kalimat, dan kalimat yang tidak bermakna.
-   - Merestrukturisasi (menyusun ulang) alur pikiran yang berantakan menjadi alur cerita/logika yang mudah dibaca.
-   - Mengelompokkan topik yang sejenis.
-   - Berikan Judul yang relevan (H1: # Judul).
-   - Format isinya secara dinamis (Gunakan kombinasi paragraf yang nyaman dibaca dan bullet points untuk rincian).
+INSTRUKSI CATATAN UTAMA:
+- Ekstrak ide utama dan konteks pembicaraan.
+- Buang kata pengisi (filler) seperti "hmm", "ee", pengulangan, atau kalimat tidak bermakna.
+- Restrukturisasi alur pikiran yang berantakan menjadi alur logika yang sistematis dan rapi.
+- Mengelompokkan topik yang sejenis.
+- Pertahankan gaya bahasa/nuansa asli saya.
+- Gunakan kombinasi paragraf padat dan bullet points.
 
-3. Pada bagian kedua, berikan Transkrip Asli (Raw Transcript) dari apa yang saya ucapkan persis kata per kata. Jangan mengubah tata bahasanya, biarkan apa adanya sebagai referensi.
-
-4. JANGAN membalas dengan kata-kata pengantar, langsung berikan output dengan format persis seperti ini:
+FORMAT KELUARAN WAJIB (Tanpa basa-basi pembuka/penutup):
 
 # [Judul yang Sesuai]
 
-[Isi catatan utama yang sudah direstrukturisasi, padat, dan jelas...]
+[Isi catatan utama yang sudah direstrukturisasi...]
 
 ---
 ### 🎙️ Transkrip Asli

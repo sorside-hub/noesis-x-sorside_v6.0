@@ -34,11 +34,11 @@ ${conversationText}
 ==================================================
 
 INSTRUKSI:
-1. Rangkum inti percakapan di atas dalam 2-4 poin padat (maksimal 150 kata).
-2. Fokuskan pada:
-   - Topik utama / domain yang sedang dibahas.
-   - Fakta penting, preferensi, atau instruksi khusus dari Pengguna.
-   - Ide, keputusan, atau kesimpulan yang sudah dicapai bersama.
+1. Rangkum inti percakapan di atas dalam bentuk poin-poin padat (maksimal 150 kata). Ini akan menjadi "otak jangka panjang" bagi AI.
+2. Fokuskan pada 3 elemen krusial berikut:
+   - INTISARI AKTIF: Topik utama apa yang sedang dikerjakan dan apa tujuannya?
+   - PARAMETER PENGGUNA: Apakah ada gaya bahasa khusus, format, preferensi, atau instruksi/pantangan yang diminta Pengguna?
+   - PENCAPAIAN & KEPUTUSAN: Solusi, rumusan konsep, atau kesepakatan apa yang sudah dicapai agar AI utama tidak mengusulkannya ulang atau berputar-putar di poin yang sama?
 3. Buat dalam Bahasa Indonesia yang lugas dan informatif.
 4. JANGAN menyertakan basa-basi atau kata pengantar/penutup, langsung berikan poin-poin ringkasan memorinya.`;
 

@@ -132,13 +132,15 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   return (
     <aside className="w-full h-full flex flex-col bg-bg-surface border-l border-border-default relative overflow-hidden select-none">
       {/* MAIN BODY CONTENT */}
-      <div className={`flex-1 ${
-        activeTab === 'LOCAL_GRAPH' 
-          ? 'overflow-hidden flex flex-col p-0 pb-[4.5rem]' 
-          : 'overflow-y-auto p-4 space-y-3 pb-20'
-      } ${
-        activeTab === 'CHAT' && isKeyboardOpen ? 'pb-4' : ''
-      }`}>
+      <div
+        className={`flex-1 ${
+          activeTab === 'LOCAL_GRAPH'
+            ? 'overflow-hidden flex flex-col p-0 pb-[4.5rem]'
+            : activeTab === 'CHAT' && isKeyboardOpen
+            ? 'overflow-y-auto p-4 space-y-3 pb-3'
+            : 'overflow-y-auto p-4 space-y-3 pb-20'
+        }`}
+      >
         {!activeNode ? (
           <div className="h-full flex items-center justify-center text-center text-text-muted text-sm py-24">
             Tidak ada catatan aktif yang dipilih.

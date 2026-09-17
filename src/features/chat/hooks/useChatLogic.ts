@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { VaultData, FileNode } from '../../../types/vault';
-import { ChatMessageRecord } from '../../../lib/db';
+import { ChatMessageRecord, ChatSessionRecord } from '../../../lib/db';
 import { retrieveChatContext } from '../services/chatContextRetriever';
 import { executeChatStream, summarizeChatMemory } from '../services/chatStreamClient';
 import { useChatSessionManager } from './useChatSessionManager';
@@ -196,8 +196,6 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
         const autoTitle = query.length > 25 ? query.substring(0, 25) + '...' : query;
         const newSess = await createChatSession(autoTitle);
         currentSessionId = newSess.id;
-        setActiveSessionId(newSess.id);
-        setSessions((prev) => [newSess, ...prev]);
         isNewSessionCreated = true;
       }
 
@@ -220,7 +218,7 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
         createdAt: new Date(now + 1).toISOString(),
       };
 
-      await saveChatMessage(userMsg);
+      // 1. Immediately update in-memory state so user message renders with zero latency
       setMessages((prev) => {
         const map = new Map<string, ChatMessageRecord>();
         prev.forEach((m) => map.set(m.id, m));
@@ -228,6 +226,25 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
         map.set(aiMsg.id, aiMsg);
         return Array.from(map.values());
       });
+
+      // 2. Persist user message to database
+      await saveChatMessage(userMsg);
+
+      // 3. If new session was created, now safely activate it
+      if (isNewSessionCreated) {
+        setActiveSessionId(currentSessionId);
+        setSessions((prev) => {
+          if (prev.some((s) => s.id === currentSessionId)) return prev;
+          const autoTitle = query.length > 25 ? query.substring(0, 25) + '...' : query;
+          const newSessItem: ChatSessionRecord = {
+            id: currentSessionId,
+            title: autoTitle,
+            createdAt: new Date(now).toISOString(),
+            updatedAt: new Date(now).toISOString(),
+          };
+          return [newSessItem, ...prev];
+        });
+      }
 
       const currentSession = sessions.find((s) => s.id === currentSessionId);
       if (

@@ -43,7 +43,32 @@ export function useChatSessionManager() {
       loadSessions();
       if (activeSessionId) {
         getSessionMessages(activeSessionId)
-          .then((msgs) => setMessages(msgs))
+          .then((msgs) => {
+            setMessages((prev) => {
+              const map = new Map<string, ChatMessageRecord>();
+              // 1. DB messages first
+              msgs.forEach((m) => map.set(m.id, m));
+              // 2. Preserve any in-memory active streaming/unsaved messages
+              prev.forEach((m) => {
+                if (m.sessionId === activeSessionId) {
+                  const fromDb = map.get(m.id);
+                  if (!fromDb) {
+                    map.set(m.id, m);
+                  } else if (m.content && m.content.length > (fromDb.content || '').length) {
+                    map.set(m.id, { ...fromDb, content: m.content, cascadeLog: m.cascadeLog || fromDb.cascadeLog });
+                  }
+                }
+              });
+              return Array.from(map.values()).sort((a, b) => {
+                const timeA = new Date(a.createdAt).getTime();
+                const timeB = new Date(b.createdAt).getTime();
+                if (timeA !== timeB) return timeA - timeB;
+                if (a.role === 'user' && b.role !== 'user') return -1;
+                if (a.role !== 'user' && b.role === 'user') return 1;
+                return a.id.localeCompare(b.id);
+              });
+            });
+          })
           .catch(console.error);
       }
     };
@@ -69,11 +94,23 @@ export function useChatSessionManager() {
           msgs.forEach((m) => map.set(m.id, m));
           // Preserve any in-memory active streaming/unsaved messages
           prev.forEach((m) => {
-            if (m.sessionId === activeSessionId && !map.has(m.id)) {
-              map.set(m.id, m);
+            if (m.sessionId === activeSessionId) {
+              const fromDb = map.get(m.id);
+              if (!fromDb) {
+                map.set(m.id, m);
+              } else if (m.content && m.content.length > (fromDb.content || '').length) {
+                map.set(m.id, { ...fromDb, content: m.content, cascadeLog: m.cascadeLog || fromDb.cascadeLog });
+              }
             }
           });
-          return Array.from(map.values());
+          return Array.from(map.values()).sort((a, b) => {
+            const timeA = new Date(a.createdAt).getTime();
+            const timeB = new Date(b.createdAt).getTime();
+            if (timeA !== timeB) return timeA - timeB;
+            if (a.role === 'user' && b.role !== 'user') return -1;
+            if (a.role !== 'user' && b.role === 'user') return 1;
+            return a.id.localeCompare(b.id);
+          });
         });
       }
     };

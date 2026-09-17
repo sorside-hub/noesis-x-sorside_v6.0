@@ -193,11 +193,73 @@ export const ChatMessageFeed: React.FC<ChatMessageFeedProps> = ({
   }, [uniqueMessages, activeSessionId]);
 
 
+  const handleFeedClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    // 1. Handle Copy Code Button
+    const copyBtn = target.closest('.copy-code-btn') as HTMLButtonElement | null;
+    if (copyBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const rawCode = copyBtn.getAttribute('data-code');
+      if (rawCode) {
+        const codeText = decodeURIComponent(rawCode);
+        navigator.clipboard.writeText(codeText).then(() => {
+          const copyIcon = copyBtn.querySelector('.copy-icon');
+          const checkIcon = copyBtn.querySelector('.check-icon');
+          const copyText = copyBtn.querySelector('.copy-text');
+          if (copyIcon && checkIcon && copyText) {
+            copyIcon.classList.add('hidden');
+            checkIcon.classList.remove('hidden');
+            copyText.textContent = 'Copied!';
+            setTimeout(() => {
+              copyIcon.classList.remove('hidden');
+              checkIcon.classList.add('hidden');
+              copyText.textContent = 'Copy';
+            }, 2000);
+          }
+        }).catch(console.error);
+      }
+      return;
+    }
+
+    // 2. Handle Wikilinks inside Markdown
+    const wikilinkEl = target.closest('.wikilink-item') as HTMLElement | null;
+    if (wikilinkEl) {
+      e.preventDefault();
+      e.stopPropagation();
+      const targetName = wikilinkEl.getAttribute('data-wikilink');
+      if (targetName && vaultState?.vault?.nodes) {
+        const allNodes = Object.values(vaultState.vault.nodes);
+        const matched = allNodes.find(
+          (n) =>
+            n.type === 'file' &&
+            (n.name.toLowerCase() === targetName.toLowerCase() ||
+              (n.metadata?.aliases || []).some((a) => a.toLowerCase() === targetName.toLowerCase()))
+        );
+
+        if (matched) {
+          navigateToNote(matched.id);
+          navigateView('vault');
+        } else {
+          const newNoteId = vaultState.createNote(null, targetName);
+          if (newNoteId) {
+            navigateToNote(newNoteId);
+            navigateView('vault');
+          }
+        }
+      }
+      return;
+    }
+  };
+
   return (
     <>
     <div 
       ref={scrollContainerRef} 
       onScroll={handleScroll} 
+      onClick={handleFeedClick}
       className="flex-1 overflow-y-auto px-4 pt-14 pb-0 flex flex-col"
       style={{ overflowAnchor: 'none' }}
     >

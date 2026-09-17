@@ -23,7 +23,18 @@ export const ChatTab: React.FC<ChatTabProps> = ({ activeNode, onUpdateMetadata }
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+
+  // Auto-resize textarea height as content changes or resets
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      if (input) {
+        textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 128)}px`;
+      }
+    }
+  }, [input]);
 
   // Load messages from metadata when active node changes
   useEffect(() => {
@@ -268,14 +279,10 @@ export const ChatTab: React.FC<ChatTabProps> = ({ activeNode, onUpdateMetadata }
           className="relative flex items-center bg-bg-elevated border border-border-default rounded-xl focus-within:border-accent-primary/60 focus-within:ring-1 focus-within:ring-accent-primary/40 transition-colors"
         >
           <textarea
+            ref={textareaRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            onInput={(e) => {
-              const target = e.target as HTMLTextAreaElement;
-              target.style.height = 'auto';
-              target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
-            }}
             placeholder="Tanyakan sesuatu tentang catatan ini..."
             className="w-full bg-transparent border-none resize-none pl-3.5 pr-10 py-2.5 text-sm leading-normal text-text-primary placeholder:text-text-muted outline-none max-h-32 min-h-[40px] custom-scrollbar block"
             rows={1}

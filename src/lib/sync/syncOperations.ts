@@ -133,10 +133,14 @@ export const syncPullFromCloud = async (): Promise<SyncSummary> => {
         await db.chat_sessions.bulkPut(localSessions as any);
       }
 
-      // Reconcile: delete local chat_sessions that no longer exist in cloud
+      // Reconcile: delete local chat_sessions that no longer exist in cloud (only if older than 10 mins)
+      const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
       for (const localSession of localSessionsInDb) {
         if (!cloudSessionIdSet.has(localSession.id)) {
-          await db.chat_sessions.delete(localSession.id);
+          const sessionTime = new Date(localSession.createdAt).getTime();
+          if (!isNaN(sessionTime) && sessionTime < tenMinutesAgo) {
+            await db.chat_sessions.delete(localSession.id);
+          }
         }
       }
     }
@@ -170,10 +174,14 @@ export const syncPullFromCloud = async (): Promise<SyncSummary> => {
         await db.chat_messages.bulkPut(localMessages as any);
       }
 
-      // Reconcile: delete local chat_messages that no longer exist in cloud
+      // Reconcile: delete local chat_messages that no longer exist in cloud (only if older than 10 mins)
+      const tenMinutesAgo = Date.now() - 10 * 60 * 1000;
       for (const existingMsg of existingMessages) {
         if (!cloudMessageIdSet.has(existingMsg.id)) {
-          await db.chat_messages.delete(existingMsg.id);
+          const msgTime = new Date(existingMsg.createdAt).getTime();
+          if (!isNaN(msgTime) && msgTime < tenMinutesAgo) {
+            await db.chat_messages.delete(existingMsg.id);
+          }
         }
       }
     }

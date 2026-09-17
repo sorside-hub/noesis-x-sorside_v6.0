@@ -31,8 +31,22 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
   // Input & Settings
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<ChatMode>('rag');
-  const [topK, setTopK] = useState<number>(6);
-  const [threshold, setThreshold] = useState<number>(0.55);
+  const [topK, setTopK] = useState<number>(() => {
+    const saved = localStorage.getItem('noesis_chat_topk');
+    return saved ? parseInt(saved, 10) : 6;
+  });
+  const [threshold, setThreshold] = useState<number>(() => {
+    const saved = localStorage.getItem('noesis_chat_threshold');
+    return saved ? parseFloat(saved) : 0.55;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('noesis_chat_topk', topK.toString());
+  }, [topK]);
+
+  useEffect(() => {
+    localStorage.setItem('noesis_chat_threshold', threshold.toString());
+  }, [threshold]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingPhase, setProcessingPhase] = useState<'idle' | 'rag' | 'generating'>('idle');
 

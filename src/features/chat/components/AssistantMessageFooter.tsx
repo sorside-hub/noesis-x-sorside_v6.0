@@ -162,9 +162,20 @@ export const AssistantMessageFooter: React.FC<AssistantMessageFooterProps> = ({
                   className="p-2.5 bg-bg-primary border border-border-subtle rounded-lg space-y-1"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <span className={`font-semibold truncate text-[11px] ${isChatSource ? 'text-accent-primary' : 'text-text-heading'}`}>
-                      {chunk.noteTitle}
-                    </span>
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <span className={`font-semibold truncate text-[11px] ${isChatSource ? 'text-accent-primary' : 'text-text-heading'}`}>
+                        {chunk.noteTitle}
+                      </span>
+                      {chunk.score !== undefined && (
+                        <span className={`shrink-0 px-1.5 py-0.5 rounded text-[9px] font-medium border ${
+                          chunk.score >= 0.75 ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                          chunk.score >= 0.60 ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20' :
+                          'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                        }`}>
+                          {chunk.score >= 0.75 ? '🟢' : chunk.score >= 0.60 ? '🟡' : '🔴'} {Math.round(chunk.score * 100)}% Match
+                        </span>
+                      )}
+                    </div>
                     {!isChatSource && (
                       <button
                         type="button"

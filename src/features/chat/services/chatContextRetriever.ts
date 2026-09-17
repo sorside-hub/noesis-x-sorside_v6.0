@@ -8,7 +8,7 @@ import { db } from '../../../lib/db';
 export interface RetrievedContext {
   contextText: string;
   sources: Array<{ noteId: string; noteTitle: string }>;
-  chunksToSave: Array<{ noteId: string; noteTitle: string; snippet: string }>;
+  chunksToSave: Array<{ noteId: string; noteTitle: string; snippet: string; score?: number }>;
 }
 
 export async function retrieveChatContext(
@@ -21,7 +21,7 @@ export async function retrieveChatContext(
   const customKeys = getAllLocalKeyOverrides();
   let contextText = '';
   let sources: Array<{ noteId: string; noteTitle: string }> = [];
-  let chunksToSave: Array<{ noteId: string; noteTitle: string; snippet: string }> = [];
+  let chunksToSave: Array<{ noteId: string; noteTitle: string; snippet: string; score?: number }> = [];
 
   if (mode === 'rag') {
     const isChitChat = isPureChitChat(query);
@@ -67,6 +67,7 @@ export async function retrieveChatContext(
               noteId: r.noteId,
               noteTitle: r.noteTitle,
               snippet: r.snippet,
+              score: r.score,
             }))
           );
         }
@@ -100,6 +101,7 @@ export async function retrieveChatContext(
               noteId: cr.sessionId,
               noteTitle: title,
               snippet: cr.content,
+              score: cr.similarity,
             });
           });
         }

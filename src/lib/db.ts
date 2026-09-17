@@ -33,7 +33,7 @@ export interface ChatMessageRecord {
   role: 'user' | 'assistant';
   content: string;
   sources?: Array<{ noteId: string; noteTitle: string }>;
-  chunks?: Array<{ noteId: string; noteTitle: string; snippet: string }>;
+  chunks?: Array<{ noteId: string; noteTitle: string; snippet: string; score?: number }>;
   cascadeLog?: any[]; // In-memory during active session, not persisted to DB
   createdAt: string;
 }

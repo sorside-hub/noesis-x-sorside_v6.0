@@ -15,6 +15,7 @@ import {
   togglePinChatSession,
   renameChatSession,
 } from '../services/chatStorage';
+import { ChatEmbeddingService } from '../services/chatEmbeddingService';
 import { ChatSessionContextMenu } from './ChatSessionContextMenu';
 import { ChatSessionItem } from './ChatSessionItem';
 
@@ -48,12 +49,28 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
+  // Embedding states per session
+  const [embeddingMap, setEmbeddingMap] = useState<Record<string, boolean>>({});
+  const [loadingEmbeddingSessionId, setLoadingEmbeddingSessionId] = useState<string | null>(null);
+
   // Context Menu Popup State
   const [contextMenu, setContextMenu] = useState<{
     session: ChatSessionRecord;
     x: number;
     y: number;
   } | null>(null);
+
+  // Fetch embedding status for current sessions
+  useEffect(() => {
+    if (!sessions || sessions.length === 0) return;
+    const sessionIds = sessions.map((s) => s.id);
+
+    ChatEmbeddingService.getMultipleEmbeddingStatuses(sessionIds)
+      .then((map) => {
+        setEmbeddingMap(map);
+      })
+      .catch((err) => console.warn('[ChatHistorySidebar] Error fetching embedding statuses:', err));
+  }, [sessions]);
 
   // Close context menu on outside click
   useEffect(() => {
@@ -89,6 +106,11 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
           }
         }
         return updated;
+      });
+      setEmbeddingMap((prev) => {
+        const next = { ...prev };
+        delete next[sessId];
+        return next;
       });
     } catch (err) {
       console.error('Failed to delete chat session:', err);
@@ -132,6 +154,39 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
     setEditingSessionId(null);
   };
 
+  const handleToggleEmbedding = async (sess: ChatSessionRecord, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    const isCurrentlyEmbedded = !!embeddingMap[sess.id];
+    setLoadingEmbeddingSessionId(sess.id);
+
+    try {
+      if (isCurrentlyEmbedded) {
+        // Hapus dari memori RAG
+        const success = await ChatEmbeddingService.deleteChatEmbeddings(sess.id);
+        if (success) {
+          setEmbeddingMap((prev) => ({ ...prev, [sess.id]: false }));
+        }
+      } else {
+        // Index ke memori RAG
+        const res = await ChatEmbeddingService.indexChatSession(sess.id);
+        if (res.success) {
+          setEmbeddingMap((prev) => ({ ...prev, [sess.id]: true }));
+        } else {
+          console.warn('[ChatEmbedding] Index failed:', res.error);
+        }
+      }
+    } catch (err) {
+      console.error('[ChatEmbedding] Toggle failed:', err);
+    } finally {
+      setLoadingEmbeddingSessionId(null);
+      setContextMenu(null);
+    }
+  };
+
   // Time Grouping Helper
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -158,6 +213,7 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
       isActive={sess.id === activeSessionId}
       isEditing={sess.id === editingSessionId}
       editingTitle={editingTitle}
+      isEmbedded={!!embeddingMap[sess.id]}
       onSelect={() => {
         setActiveSessionId(sess.id);
         onClose?.();
@@ -187,9 +243,13 @@ export const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({
     <>
       <ChatSessionContextMenu
         contextMenu={contextMenu}
+        isEmbedded={contextMenu ? !!embeddingMap[contextMenu.session.id] : false}
+        isEmbeddingLoading={contextMenu ? loadingEmbeddingSessionId === contextMenu.session.id : false}
+        onClose={() => setContextMenu(null)}
         onTogglePin={handleTogglePin}
         onStartRename={handleStartRename}
         onDeleteSession={handleDeleteSession}
+        onToggleEmbedding={handleToggleEmbedding}
       />
 
       {/* LEFT SIDEBAR (FOLDER TREE CHAT HISTORY) */}

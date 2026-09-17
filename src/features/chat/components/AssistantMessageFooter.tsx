@@ -113,23 +113,32 @@ export const AssistantMessageFooter: React.FC<AssistantMessageFooterProps> = ({
       {activeTab === 'sources' && msg.sources && msg.sources.length > 0 && (
         <div className="p-3 bg-bg-surface border border-border-default rounded-xl space-y-2 text-xs animate-in fade-in duration-200">
           <div className="text-[11px] font-semibold text-text-muted border-b border-border-subtle pb-1.5 flex items-center gap-1.5">
-            <BookOpen size={13} /> Catatan Vault Yang Dirujuk:
+            <BookOpen size={13} /> Sumber Catatan & Sesi Diskusi Yang Dirujuk:
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-1">
-            {msg.sources.map((src, sIdx) => (
-              <button
-                key={sIdx}
-                type="button"
-                onClick={() => {
-                  navigateToNote(src.noteId);
-                  navigateView('vault');
-                }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-bg-primary hover:bg-bg-hover border border-border-default text-text-secondary hover:text-text-heading transition-colors cursor-pointer text-xs font-medium shadow-2xs"
-              >
-                <span>{src.noteTitle}</span>
-                <ExternalLink size={12} className="opacity-70" />
-              </button>
-            ))}
+            {msg.sources.map((src, sIdx) => {
+              const isChatSource = src.noteTitle.startsWith('💬');
+              return (
+                <button
+                  key={sIdx}
+                  type="button"
+                  onClick={() => {
+                    if (!isChatSource) {
+                      navigateToNote(src.noteId);
+                      navigateView('vault');
+                    }
+                  }}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium shadow-2xs transition-colors ${
+                    isChatSource
+                      ? 'bg-accent-primary/10 border-accent-primary/30 text-accent-primary cursor-default'
+                      : 'bg-bg-primary hover:bg-bg-hover border-border-default text-text-secondary hover:text-text-heading cursor-pointer'
+                  }`}
+                >
+                  <span>{src.noteTitle}</span>
+                  {!isChatSource && <ExternalLink size={12} className="opacity-70" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -139,38 +148,43 @@ export const AssistantMessageFooter: React.FC<AssistantMessageFooterProps> = ({
         <div className="p-3 bg-bg-surface border border-border-default rounded-xl space-y-2 text-xs animate-in fade-in duration-200">
           <div className="flex items-center justify-between text-[11px] font-semibold text-text-muted border-b border-border-subtle pb-1.5">
             <span className="flex items-center gap-1.5">
-              <Layers size={13} /> Potongan Catatan Yang Digunakan AI
+              <Layers size={13} /> Potongan Memori Yang Digunakan AI
             </span>
             <span>{msg.chunks.length} Chunks</span>
           </div>
 
           <div className="space-y-2 pt-1">
-            {msg.chunks.map((chunk, cIdx) => (
-              <div
-                key={cIdx}
-                className="p-2.5 bg-bg-primary border border-border-subtle rounded-lg space-y-1"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-semibold text-text-heading truncate text-[11px]">
-                    {chunk.noteTitle}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigateToNote(chunk.noteId);
-                      navigateView('vault');
-                    }}
-                    title="Buka Catatan"
-                    className="text-text-muted hover:text-text-primary shrink-0 cursor-pointer"
-                  >
-                    <ExternalLink size={12} />
-                  </button>
+            {msg.chunks.map((chunk, cIdx) => {
+              const isChatSource = chunk.noteTitle.startsWith('💬');
+              return (
+                <div
+                  key={cIdx}
+                  className="p-2.5 bg-bg-primary border border-border-subtle rounded-lg space-y-1"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`font-semibold truncate text-[11px] ${isChatSource ? 'text-accent-primary' : 'text-text-heading'}`}>
+                      {chunk.noteTitle}
+                    </span>
+                    {!isChatSource && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigateToNote(chunk.noteId);
+                          navigateView('vault');
+                        }}
+                        title="Buka Catatan"
+                        className="text-text-muted hover:text-text-primary shrink-0 cursor-pointer"
+                      >
+                        <ExternalLink size={12} />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-text-secondary line-clamp-3 leading-relaxed font-mono">
+                    {chunk.snippet}
+                  </p>
                 </div>
-                <p className="text-[11px] text-text-secondary line-clamp-3 leading-relaxed font-mono">
-                  {chunk.snippet}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

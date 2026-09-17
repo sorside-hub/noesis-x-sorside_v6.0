@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, UIEvent } from 'react';
-import { Send, Loader2, Bot, Trash2, ArrowDown } from 'lucide-react';
+import { Send, Loader2, Bot, Trash2, ArrowDown, Copy, Check } from 'lucide-react';
 import { FileNode, NoteMetadata } from '../../../types/vault';
 import { useAiActions } from '../../editor/hooks/useAiActions';
 import { renderMarkdown } from '../../../lib/editor/markdownRenderer';
@@ -25,6 +25,45 @@ export const ChatTab: React.FC<ChatTabProps> = ({ activeNode, onUpdateMetadata }
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+
+  const handleCopyMessage = (msgId: string, content: string) => {
+    navigator.clipboard.writeText(content).then(() => {
+      setCopiedMsgId(msgId);
+      setTimeout(() => setCopiedMsgId(null), 2000);
+    }).catch(console.error);
+  };
+
+  const handleFeedClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement | null;
+    if (!target) return;
+
+    // Handle Copy Code Button inside rendered markdown
+    const copyBtn = target.closest('.copy-code-btn') as HTMLButtonElement | null;
+    if (copyBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const rawCode = copyBtn.getAttribute('data-code');
+      if (rawCode) {
+        const codeText = decodeURIComponent(rawCode);
+        navigator.clipboard.writeText(codeText).then(() => {
+          const copyIcon = copyBtn.querySelector('.copy-icon');
+          const checkIcon = copyBtn.querySelector('.check-icon');
+          const copyText = copyBtn.querySelector('.copy-text');
+          if (copyIcon && checkIcon && copyText) {
+            copyIcon.classList.add('hidden');
+            checkIcon.classList.remove('hidden');
+            copyText.textContent = 'Copied!';
+            setTimeout(() => {
+              copyIcon.classList.remove('hidden');
+              checkIcon.classList.add('hidden');
+              copyText.textContent = 'Copy';
+            }, 2000);
+          }
+        }).catch(console.error);
+      }
+    }
+  };
 
   // Auto-resize textarea height as content changes or resets
   useEffect(() => {
@@ -213,9 +252,15 @@ export const ChatTab: React.FC<ChatTabProps> = ({ activeNode, onUpdateMetadata }
       </div>
 
       {/* Messages area */}
-      <div ref={scrollContainerRef} onScroll={handleScroll} className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar" style={{ overflowAnchor: 'none' }}>
+      <div 
+        ref={scrollContainerRef} 
+        onScroll={handleScroll} 
+        onClick={handleFeedClick}
+        className="flex-1 overflow-y-auto pr-1 space-y-4 custom-scrollbar select-text" 
+        style={{ overflowAnchor: 'none' }}
+      >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-text-muted space-y-3 opacity-60">
+          <div className="flex flex-col items-center justify-center h-full text-center text-text-muted space-y-3 opacity-60 select-none">
             <Bot size={32} />
             <p className="text-sm">Tanyakan apa saja tentang catatan ini.<br/>AI Copilot akan membaca isi catatan dan menjawab.</p>
           </div>
@@ -223,23 +268,44 @@ export const ChatTab: React.FC<ChatTabProps> = ({ activeNode, onUpdateMetadata }
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-full`}
+              className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} max-w-full select-text`}
             >
               <div
-                className={`max-w-[90%] rounded-xl px-3 py-2 text-sm ${
+                className={`max-w-[90%] rounded-xl px-3 py-2 text-sm select-text ${
                   msg.role === 'user'
                     ? 'bg-accent-primary text-accent-contrast font-medium rounded-br-none'
                     : 'bg-bg-elevated border border-border-default/50 text-text-primary rounded-bl-none'
                 }`}
               >
                 {msg.role === 'user' ? (
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  <p className="whitespace-pre-wrap select-text">{msg.content}</p>
                 ) : (
                   <div 
-                    className="markdown-body text-sm prose-sm dark:prose-invert"
+                    className="markdown-body text-sm prose-sm dark:prose-invert select-text"
                     dangerouslySetInnerHTML={{ __html: renderedHtmlMap[msg.id] || '<p>Rendering...</p>' }}
                   />
                 )}
+              </div>
+              {/* Message actions: Copy button */}
+              <div className={`flex items-center gap-1 mt-1 px-1 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} select-none`}>
+                <button
+                  type="button"
+                  onClick={() => handleCopyMessage(msg.id, msg.content)}
+                  className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-bg-surface-hover transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                  title="Salin teks"
+                >
+                  {copiedMsgId === msg.id ? (
+                    <>
+                      <Check size={11} className="text-status-success" />
+                      <span className="text-[10px] text-status-success font-medium">Tersalin!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={11} />
+                      <span className="text-[10px]">Salin</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           ))

@@ -5,6 +5,7 @@ import {
   deleteChatSessionFromCloud, 
   deleteChatMessagesFromCloud 
 } from '../../../lib/cloudSync';
+import { ChatEmbeddingService } from './chatEmbeddingService';
 
 export async function getAllChatSessions(): Promise<ChatSessionRecord[]> {
   try {
@@ -25,7 +26,11 @@ export async function createChatSession(title: string = 'Percakapan Baru'): Prom
     updatedAt: now,
   };
   await db.chat_sessions.add(session);
-  pushChatSessionToCloud(session).catch(console.error);
+  try {
+    await pushChatSessionToCloud(session);
+  } catch (err) {
+    console.error('Failed to push session to cloud:', err);
+  }
   return session;
 }
 
@@ -76,6 +81,7 @@ export async function deleteChatSession(sessionId: string): Promise<void> {
     await db.chat_sessions.delete(sessionId);
     await db.chat_messages.where('sessionId').equals(sessionId).delete();
   });
+  ChatEmbeddingService.deleteChatEmbeddings(sessionId).catch(console.error);
   deleteChatSessionFromCloud(sessionId).catch(console.error);
 }
 

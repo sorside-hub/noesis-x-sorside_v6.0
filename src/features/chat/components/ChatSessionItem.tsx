@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Pin, MessageSquare, MoreVertical } from 'lucide-react';
+import { Pin, MessageSquare, MoreVertical, Sparkles } from 'lucide-react';
 import { ChatSessionRecord } from '../../../lib/db';
 
 interface ChatSessionItemProps {
@@ -7,6 +7,7 @@ interface ChatSessionItemProps {
   isActive: boolean;
   isEditing: boolean;
   editingTitle: string;
+  isEmbedded?: boolean;
   onSelect: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
   onTouchContextMenu: (x: number, y: number) => void;
@@ -21,6 +22,7 @@ export const ChatSessionItem: React.FC<ChatSessionItemProps> = ({
   isActive,
   isEditing,
   editingTitle,
+  isEmbedded = false,
   onSelect,
   onContextMenu,
   onTouchContextMenu,
@@ -37,10 +39,15 @@ export const ChatSessionItem: React.FC<ChatSessionItemProps> = ({
     const clientY = touch.clientY;
 
     longPressTimerRef.current = setTimeout(() => {
-      onTouchContextMenu(
-        Math.min(clientX, window.innerWidth - 180),
-        Math.min(clientY, window.innerHeight - 150)
-      );
+      const menuWidth = 195;
+      const menuHeight = 185;
+      let x = clientX - menuWidth / 2;
+      let y = clientY + 8;
+      x = Math.max(12, Math.min(x, window.innerWidth - menuWidth - 12));
+      if (y + menuHeight > window.innerHeight) {
+        y = Math.max(12, clientY - menuHeight - 8);
+      }
+      onTouchContextMenu(x, y);
     }, 450);
   };
 
@@ -93,21 +100,39 @@ export const ChatSessionItem: React.FC<ChatSessionItemProps> = ({
             className="w-full bg-bg-primary border border-border-default rounded px-1.5 py-0.5 text-xs text-text-primary outline-hidden"
           />
         ) : (
-          <span className="truncate">{session.title}</span>
+          <div className="flex items-center gap-1.5 min-w-0 truncate">
+            <span className="truncate">{session.title}</span>
+            {isEmbedded && (
+              <span
+                title="Sesi ini aktif di Memori RAG"
+                className="shrink-0 inline-flex items-center gap-0.5 px-1 py-0.2 rounded bg-accent-primary/10 text-accent-primary text-[9px] font-medium"
+              >
+                <Sparkles size={9} />
+                <span className="hidden group-hover:inline">RAG</span>
+              </span>
+            )}
+          </div>
         )}
       </div>
 
-      {/* 3-dots popup trigger button */}
+      {/* 3-dots popup trigger button (Always accessible on mobile, hover on desktop) */}
       <button
         type="button"
+        title="Opsi Sesi"
         onClick={(e) => {
           e.stopPropagation();
-          onOpenMenu(
-            Math.min(e.clientX, window.innerWidth - 180),
-            Math.min(e.clientY, window.innerHeight - 150)
-          );
+          const rect = e.currentTarget.getBoundingClientRect();
+          const menuWidth = 195;
+          const menuHeight = 185;
+          let x = rect.right - menuWidth;
+          let y = rect.bottom + 4;
+          x = Math.max(12, Math.min(x, window.innerWidth - menuWidth - 12));
+          if (y + menuHeight > window.innerHeight) {
+            y = Math.max(12, rect.top - menuHeight - 4);
+          }
+          onOpenMenu(x, y);
         }}
-        className="opacity-0 group-hover:opacity-100 p-1 hover:text-text-primary text-text-muted rounded cursor-pointer transition-opacity"
+        className="opacity-70 group-hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-1.5 hover:text-text-primary text-text-muted rounded-md hover:bg-bg-hover cursor-pointer transition-opacity shrink-0 ml-1"
       >
         <MoreVertical size={13} />
       </button>

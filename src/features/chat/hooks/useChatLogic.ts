@@ -31,7 +31,7 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
   // Input & Settings
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<ChatMode>('rag');
-  const [topK, setTopK] = useState<number>(5);
+  const [topK, setTopK] = useState<number>(6);
   const [threshold, setThreshold] = useState<number>(0.55);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingPhase, setProcessingPhase] = useState<'idle' | 'rag' | 'generating'>('idle');
@@ -197,6 +197,19 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
         const newSess = await createChatSession(autoTitle);
         currentSessionId = newSess.id;
         isNewSessionCreated = true;
+
+        // Activate session atomically before pushing messages to prevent reload bugs
+        setActiveSessionId(currentSessionId);
+        setSessions((prev) => {
+          if (prev.some((s) => s.id === currentSessionId)) return prev;
+          const newSessItem: ChatSessionRecord = {
+            id: currentSessionId,
+            title: autoTitle,
+            createdAt: newSess.createdAt,
+            updatedAt: newSess.updatedAt,
+          };
+          return [newSessItem, ...prev];
+        });
       }
 
       const now = Date.now();
@@ -229,22 +242,6 @@ export function useChatLogic(vault: VaultData, activeTabId: string | null) {
 
       // 2. Persist user message to database
       await saveChatMessage(userMsg);
-
-      // 3. If new session was created, now safely activate it
-      if (isNewSessionCreated) {
-        setActiveSessionId(currentSessionId);
-        setSessions((prev) => {
-          if (prev.some((s) => s.id === currentSessionId)) return prev;
-          const autoTitle = query.length > 25 ? query.substring(0, 25) + '...' : query;
-          const newSessItem: ChatSessionRecord = {
-            id: currentSessionId,
-            title: autoTitle,
-            createdAt: new Date(now).toISOString(),
-            updatedAt: new Date(now).toISOString(),
-          };
-          return [newSessItem, ...prev];
-        });
-      }
 
       const currentSession = sessions.find((s) => s.id === currentSessionId);
       if (

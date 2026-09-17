@@ -204,7 +204,77 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 7. AKTIFKAN SUPABASE REALTIME (Sinkronisasi Antar Device)
+-- 7. TABEL VEKTOR EMBEDDING SESI CHAT (RAG Memory - BAAI/bge-m3 1024 Dimensi)
+CREATE TABLE IF NOT EXISTS chat_embeddings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id TEXT NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+  chunk_index INTEGER NOT NULL,
+  content TEXT NOT NULL,
+  embedding vector(1024) NOT NULL,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'chat_embeddings' AND column_name = 'embedding'
+  ) THEN
+    ALTER TABLE chat_embeddings ALTER COLUMN embedding TYPE vector(1024);
+  END IF;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  DELETE FROM chat_embeddings WHERE session_id NOT IN (SELECT id FROM chat_sessions);
+  ALTER TABLE chat_embeddings DROP CONSTRAINT IF EXISTS fk_chat_embeddings_sessions;
+  ALTER TABLE chat_embeddings
+    ADD CONSTRAINT fk_chat_embeddings_sessions
+    FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
+ALTER TABLE chat_embeddings ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'chat_embeddings' AND policyname = 'Users can manage their own chat embeddings'
+  ) THEN
+    CREATE POLICY "Users can manage their own chat embeddings" 
+    ON chat_embeddings FOR ALL USING (auth.uid() = user_id);
+  END IF;
+END $$;
+
+-- 8. FUNGSI PENCARI VEKTOR CHAT (RPC match_chat_embeddings 1024-dimensi)
+CREATE OR REPLACE FUNCTION match_chat_embeddings (
+  query_embedding vector(1024),
+  match_threshold float,
+  match_count int
+)
+RETURNS TABLE (
+  "sessionId" text,
+  "chunkIndex" integer,
+  content text,
+  similarity float
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    session_id as "sessionId",
+    chunk_index as "chunkIndex",
+    chat_embeddings.content,
+    1 - (chat_embeddings.embedding <=> query_embedding) AS similarity
+  FROM chat_embeddings
+  WHERE 1 - (chat_embeddings.embedding <=> query_embedding) > match_threshold
+    AND user_id = auth.uid()
+  ORDER BY chat_embeddings.embedding <=> query_embedding
+  LIMIT match_count;
+END;
+$$;
+
+-- 9. AKTIFKAN SUPABASE REALTIME (Sinkronisasi Antar Device)
 DO $$ 
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename = 'nodes') THEN

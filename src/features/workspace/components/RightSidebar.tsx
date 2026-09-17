@@ -130,7 +130,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   if (!isOpen) return null;
 
   return (
-    <aside className="w-full h-full flex flex-col bg-bg-surface border-l border-border-default relative overflow-hidden select-none">
+    <aside className="w-full h-full flex flex-col bg-bg-surface border-l border-border-default relative overflow-hidden">
       {/* MAIN BODY CONTENT */}
       <div
         className={`flex-1 ${

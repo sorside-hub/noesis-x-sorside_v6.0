@@ -68,20 +68,34 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
       const lineText = editor.state.doc.textBetween(lineStart, lineEnd, ' ');
 
       REMINDER_REGEX.lastIndex = 0;
-      const match = REMINDER_REGEX.exec(lineText);
-      if (match) {
+      let match: RegExpExecArray | null;
+      let bestMatch: { match: RegExpExecArray; from: number; to: number } | null = null;
+      while ((match = REMINDER_REGEX.exec(lineText)) !== null) {
+        const from = lineStart + match.index;
+        const to = from + match[0].length;
+        if (!bestMatch) {
+          bestMatch = { match, from, to };
+        }
+        // If cursor is within or adjacent to this reminder match
+        if (sel.from >= from && sel.from <= to + 1) {
+          bestMatch = { match, from, to };
+          break;
+        }
+      }
+
+      if (bestMatch) {
         foundExisting = true;
-        initialDate = match[1];
-        if (match[2]) {
-          initialTime = match[2];
+        initialDate = bestMatch.match[1];
+        if (bestMatch.match[2]) {
+          initialTime = bestMatch.match[2];
           initialIncludeTime = true;
         }
-        if (match[3]) {
-          initialCustomTitle = match[3].trim();
+        if (bestMatch.match[3]) {
+          initialCustomTitle = bestMatch.match[3].trim();
         }
         matchRange = {
-          from: lineStart + match.index,
-          to: lineStart + match.index + match[0].length,
+          from: bestMatch.from,
+          to: bestMatch.to,
         };
       }
 
@@ -131,15 +145,20 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
     const sel = savedSelectionRef.current || editor.state.selection;
 
     if (hasExistingReminder && existingMatchRange) {
-      // Replace existing reminder tag
+      // Replace existing reminder tag with clean plain text node (clearing any accidental marks like code/bold)
       editor
         .chain()
         .focus()
         .deleteRange(existingMatchRange)
-        .insertContentAt(existingMatchRange.from, reminderTag)
+        .unsetAllMarks()
+        .insertContentAt(existingMatchRange.from, {
+          type: 'text',
+          text: reminderTag,
+          marks: [],
+        })
         .run();
     } else {
-      // Insert at current cursor / end of current line
+      // Insert at current cursor / end of current line with clean plain text
       const { from, empty } = sel;
       if (empty) {
         // If at end or middle of text, ensure leading space
@@ -151,14 +170,24 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
         editor
           .chain()
           .focus()
-          .insertContentAt(from, insertText)
+          .unsetAllMarks()
+          .insertContentAt(from, {
+            type: 'text',
+            text: insertText,
+            marks: [],
+          })
           .run();
       } else {
         // Append to selection
         editor
           .chain()
           .focus()
-          .insertContentAt(sel.to, ` ${reminderTag}`)
+          .unsetAllMarks()
+          .insertContentAt(sel.to, {
+            type: 'text',
+            text: ` ${reminderTag}`,
+            marks: [],
+          })
           .run();
       }
     }
@@ -172,6 +201,7 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
       .chain()
       .focus()
       .deleteRange(existingMatchRange)
+      .unsetAllMarks()
       .run();
     onClose();
   };

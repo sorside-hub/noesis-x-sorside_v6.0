@@ -28,10 +28,6 @@ export const ReminderExtension = Extension.create({
                 }
 
                 if (node.isText && node.text) {
-                  if (node.marks.some((m) => m.type.name === 'code')) {
-                    return;
-                  }
-
                   const text = node.text;
                   let match: RegExpExecArray | null;
                   INLINE_REMINDER_REGEX.lastIndex = 0;
@@ -78,8 +74,11 @@ export const ReminderExtension = Extension.create({
                           () => {
                             const container = document.createElement('span');
                             container.className = 'inline-reminder-widget select-none cursor-pointer inline align-baseline hover:opacity-80 transition-opacity mr-1';
+                            container.contentEditable = 'false';
                             container.title = tooltip;
                             container.setAttribute('data-reminder-trigger', 'true');
+                            container.setAttribute('data-reminder-start', String(start));
+                            container.setAttribute('data-reminder-end', String(end));
 
                             // Custom Title di kiri (Bold font-semibold & warna teks judul)
                             if (customTitle && customTitle.trim()) {
@@ -138,7 +137,7 @@ export const ReminderExtension = Extension.create({
                           },
                           {
                             side: -1,
-                            stopEvent: () => false,
+                            stopEvent: () => true,
                           }
                         )
                       );

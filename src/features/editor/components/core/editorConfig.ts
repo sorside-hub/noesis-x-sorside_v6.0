@@ -299,6 +299,21 @@ export const getEditorProps = (
       if (reminderEl) {
         event.preventDefault();
         event.stopPropagation();
+        try {
+          const rawStart = reminderEl.getAttribute('data-reminder-start');
+          let clickPos = rawStart ? parseInt(rawStart, 10) : null;
+          if (clickPos === null || isNaN(clickPos)) {
+            clickPos = view.posAtDOM(reminderEl, 0);
+          }
+          if (typeof clickPos === 'number' && !isNaN(clickPos) && clickPos >= 0 && clickPos <= view.state.doc.content.size) {
+            const tr = view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, clickPos)
+            );
+            view.dispatch(tr);
+          }
+        } catch {
+          // fallback safely
+        }
         window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
         return true;
       }
@@ -374,6 +389,21 @@ export const getEditorProps = (
       if (reminderEl) {
         event.preventDefault();
         event.stopPropagation();
+        try {
+          const rawStart = reminderEl.getAttribute('data-reminder-start');
+          let clickPos = rawStart ? parseInt(rawStart, 10) : null;
+          if (clickPos === null || isNaN(clickPos)) {
+            clickPos = view.posAtDOM(reminderEl, 0);
+          }
+          if (typeof clickPos === 'number' && !isNaN(clickPos) && clickPos >= 0 && clickPos <= view.state.doc.content.size) {
+            const tr = view.state.tr.setSelection(
+              TextSelection.create(view.state.doc, clickPos)
+            );
+            view.dispatch(tr);
+          }
+        } catch {
+          // fallback safely
+        }
         window.dispatchEvent(new CustomEvent('noesis:open-modal', { detail: 'remind' }));
         return true;
       }

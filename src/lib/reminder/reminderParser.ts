@@ -9,7 +9,7 @@ import { FileNode } from '../../types/vault';
  * 4. ⏰ YYYY-MM-DD
  * 5. @remind(YYYY-MM-DD HH:mm) or @remind(YYYY-MM-DD)
  */
-export const REMINDER_REGEX = /(?:⏰|@remind\(|📅\s*)(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2}))?\)?(?:\s*\[([^\]\n]+)\])?/g;
+export const REMINDER_REGEX = /(?:⏰\uFE0F?|@remind\(|📅\s*)\s*(\d{4}-\d{2}-\d{2})(?:[T\s](\d{2}:\d{2}))?\)?(?:\s*\[([^\]\n]+)\])?/gu;
 
 /**
  * Parses a string date and optional time into unix milliseconds

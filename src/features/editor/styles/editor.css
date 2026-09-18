@@ -250,6 +250,30 @@
   content: "" !important;
 }
 
+/* Neutralize code elements when wrapping hidden reminder or inline editing */
+.prose code:has(.reminder-raw-hidden),
+.ProseMirror code:has(.reminder-raw-hidden),
+.prose code:empty,
+.ProseMirror code:empty {
+  display: inline-block !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  overflow: hidden !important;
+}
+.prose code:has(.inline-reminder-editing),
+.ProseMirror code:has(.inline-reminder-editing) {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
 /* Callout / Admonition Box Styles */
 .callout-box summary {
   list-style: none !important;

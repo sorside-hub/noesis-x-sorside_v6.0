@@ -1,7 +1,64 @@
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey, TextSelection, EditorState, Transaction } from '@tiptap/pm/state';
+import { INLINE_REMINDER_REGEX } from './ReminderExtension';
 
 export const SafeDeletePluginKey = new PluginKey('safeDeletePlugin');
+
+/**
+ * Checks if the cursor is directly behind (or within) an inline reminder tag,
+ * and if so, deletes the reminder tag atomically in one clean transaction.
+ */
+export function safeDeleteReminderBackward(state: EditorState, dispatch?: (tr: Transaction) => void): boolean {
+  try {
+    const { selection, doc } = state;
+    if (!selection.empty) return false;
+
+    const { $from } = selection;
+    const parentNode = $from.parent;
+    if (!parentNode.isTextblock) return false;
+
+    const blockStart = $from.start();
+    const lineText = parentNode.textContent;
+    if (!lineText) return false;
+
+    // Position of cursor relative to block start
+    const relPos = $from.pos - blockStart;
+
+    INLINE_REMINDER_REGEX.lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = INLINE_REMINDER_REGEX.exec(lineText)) !== null) {
+      const matchStart = match.index;
+      const matchEnd = match.index + match[0].length;
+
+      // Check if cursor is immediately after the reminder (or within it)
+      // Example: lineText is "Task ⏰ 2026-09-25" and cursor is at end of reminder or 1 space after
+      if (relPos >= matchStart && relPos <= matchEnd) {
+        // Range in document coordinates
+        let delFrom = blockStart + matchStart;
+        let delTo = blockStart + matchEnd;
+
+        // Clean up optional leading space before the reminder if exists
+        if (matchStart > 0 && lineText[matchStart - 1] === ' ') {
+          delFrom -= 1;
+        } else if (matchEnd < lineText.length && lineText[matchEnd] === ' ') {
+          // Or trailing space
+          delTo += 1;
+        }
+
+        if (dispatch) {
+          const tr = state.tr.delete(delFrom, delTo);
+          tr.setSelection(TextSelection.create(tr.doc, delFrom));
+          dispatch(tr.scrollIntoView());
+        }
+        return true;
+      }
+    }
+  } catch {
+    // Fail silently to normal flow
+  }
+  return false;
+}
 
 /**
  * Checks whether the current selection encompasses the whole or virtually whole document.
@@ -107,6 +164,10 @@ export const SafeDeleteExtension = Extension.create({
           if (!selection.empty) {
             return safeDeleteSelection(editor.state, editor.view.dispatch);
           }
+          // If cursor is at or within a reminder tag, atomically delete it
+          if (safeDeleteReminderBackward(editor.state, editor.view.dispatch)) {
+            return true;
+          }
           // If at the absolute beginning of the document, safely consume the backspace
           if (selection.$from.pos <= 1) {
             return true;
@@ -146,6 +207,10 @@ export const SafeDeleteExtension = Extension.create({
                   event.preventDefault();
                   return safeDeleteSelection(view.state, view.dispatch);
                 }
+                if (safeDeleteReminderBackward(view.state, view.dispatch)) {
+                  event.preventDefault();
+                  return true;
+                }
                 if (view.state.selection.$from.pos <= 1) {
                   event.preventDefault();
                   return true;
@@ -175,6 +240,10 @@ export const SafeDeleteExtension = Extension.create({
                   if (!view.state.selection.empty) {
                     event.preventDefault();
                     return safeDeleteSelection(view.state, view.dispatch);
+                  }
+                  if (safeDeleteReminderBackward(view.state, view.dispatch)) {
+                    event.preventDefault();
+                    return true;
                   }
                   if (view.state.selection.$from.pos <= 1) {
                     event.preventDefault();

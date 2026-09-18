@@ -250,7 +250,13 @@ body {
 }
 
 /* Reminder Inline Rendering */
-.reminder-raw-hidden {
+.reminder-raw-hidden,
+.ProseMirror code:has(.reminder-raw-hidden),
+.prose code:has(.reminder-raw-hidden),
+code:has(.reminder-raw-hidden),
+.ProseMirror code:empty,
+.prose code:empty,
+code:empty {
   font-size: 0 !important;
   line-height: 0 !important;
   color: transparent !important;
@@ -261,6 +267,10 @@ body {
   user-select: none !important;
   pointer-events: none !important;
   vertical-align: middle !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
 }
 
 .inline-reminder-widget {
